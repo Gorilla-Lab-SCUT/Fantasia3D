@@ -6,7 +6,7 @@
 #### <p align="center">[Paper](http://arxiv.org/abs/2303.13873) | [Project Page](https://fantasia3d.github.io/) </p>
 
 <p align="center">
-  <img width="100%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/head.jpg"/>
+  <img width="50%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/head.jpg"/>
 </p>
 
 
