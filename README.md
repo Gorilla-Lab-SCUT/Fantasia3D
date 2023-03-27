@@ -11,6 +11,4 @@
   <img width="40%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/head.jpg"/>
 </p>
 
-#####  <p align="center"> Provided with a textual description of “a highly detailed stone bust of Theodoros Kolokotronis”, our method produces high-quality geometry as well as disentangled materials, and enables photorealistic rendering.
-
 <p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
