@@ -8,7 +8,7 @@
 
 
 <p align="center">
-  <img width="40%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/head.jpg"/>
+  <img width="40%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/head_figure.jpg"/>
 </p>
 
 <p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
