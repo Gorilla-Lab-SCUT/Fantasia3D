@@ -12,3 +12,20 @@
 </p>
 
 <p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
+
+## [FAQ](assets/FAQ.md) | [Tip](assets/Tip.md)
+
+## Todo
+
+- [ ] Release the code. (2023.06.15) (The code has been organized. We are working on the configuration files to facilitate the reproduction of the results in the paper)
+- [ ] Support the VSD loss proposed by ProlificDreamer.
+
+## BibTex
+```
+@article{chen2023fantasia3d,
+    title={Fantasia3D: Disentangling Geometry and Appearance for High-quality Text-to-3D Content Creation},
+    author={Rui Chen and Yongwei Chen and Ningxin Jiao and Kui Jia},
+    journal={arXiv preprint arXiv:2303.13873},
+    year={2023}
+}
+```
