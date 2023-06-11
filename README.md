@@ -17,8 +17,8 @@
 
 ## Demos
 
-<video src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/assets/Gundam_appearance.mp4" controls></video>
-<video src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/assets/Gundam_geometry.mp4" controls></video>
+<video src="assets/Gundam_appearance.mp4" controls></video>
+<video src="assets/Gundam_geometry.mp4" controls></video>
 
 ## Todo
 
