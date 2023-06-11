@@ -15,6 +15,11 @@
 
 ## [FAQ](assets/FAQ.md) | [Tip](assets/Tip.md)
 
+## Demos
+
+![Gundam_appearance](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/assets/Gundam_appearance.mp4)
+![Gundam_appearance](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/assets/Gundam_geometry.mp4)
+
 ## Todo
 
 - [ ] Release the code. (2023.06.15) (The code has been organized. We are working on the configuration files to facilitate the reproduction of the results in the paper)
