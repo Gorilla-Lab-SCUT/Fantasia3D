@@ -17,6 +17,8 @@
 
 ## Demos
 
+You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
+
 https://user-images.githubusercontent.com/128572637/244950828-21956cae-e6c4-42ce-89cd-a912c271de51.mp4
 
 https://user-images.githubusercontent.com/128572637/244950909-0eb363f6-9bf3-4553-9090-fd1fd0003d67.mp4
