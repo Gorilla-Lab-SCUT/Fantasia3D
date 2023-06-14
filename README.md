@@ -13,7 +13,15 @@
 
 <p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
 
-## [FAQ](assets/FAQ.md) | [Tip](assets/Tip.md)
+# FAQ
+
+***Q1***: *About the use of normal and mask images as the input of stable diffusion model and analysis*
+
+Answer: Our initial hypothesis is that normal and mask images, representing local and silhouette information of shapes respectively, can benefit geometry learning. Additionally, we observed that the value range of the normal map is normalized to (-1, 1), which aligns with the data range required for latent space diffusion. Our empirical studies validate this hypothesis. Further support for our hypothesis comes from the presence of normal images in the LAION-5B dataset used for training Stable Diffusion (see [Website](https://rom1504.github.io/clip-retrieval/?back=https%3A%2F%2Fknn.laion.ai&index=laion5B-H-14&useMclip=false&query=normal+map) for retrieval of normal data in LAION-5B). Therefore, the normal data is not considered an out-of-distribution (OOD) input for stable diffusion. To handle rough and coarse geometry in the early stage of learning, we directly utilize concatenated 64 $\times$ 64 $\times$ 4 (normal, mask) images as the latent code, inspired by Latent-NeRF [22], to achieve better convergence. However, using the normal map without VAE encoding in the world coordinate system may lead to inconsistencies with the data distribution of the latent space trained by VAE. This mismatch can cause the generated geometry to deviate from the text description in some cases. To address this issue, we employ a data augmentation technique by randomly rotating the normal map rendered from the current view. This approach brings the distribution of the normal map closer to the distribution of latent space data. We experimentally observe that it improves the alignment between the generated geometry and the text description. As the learning progresses, it becomes essential to render the 512 $\times$ 512 $\times$ 3 high-resolution normal image for capturing finer geometry details, and we choose to use normal image only in the later stage. This strategy strikes an accuracy-efficiency balance throughout the geometry optimization process.
+
+***Q2***: *Hypothesis-verification analysis of the disentangled representation*
+
+Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and appearance generation together, following NeRF. Our adoption of the disentangled representation is mainly motivated by the difference of problem nature for generating surface geometry and appearance. In fact, when dealing with finer recovery of surface geometry from multi-view images, methods (e.g.,  VolSDF, nvdiffrec, etc) that explicitly take the surface modeling into account triumph; our disentangled representation enjoys the benefit similar to these methods. The disentangled representation also enables us to include the BRDF material representation in the appearance modeling, achieving better photo-realistic rendering by the BRDF physical prior.
 
 # Install
 
