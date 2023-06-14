@@ -37,6 +37,19 @@ cd Fantasia3D
 pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
+# Start
+soon....
+- zero-shot generation
+
+```bash
+
+```
+
+- user-guided generation
+
+```bash
+
+```
 ## Demos
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
@@ -60,6 +73,8 @@ https://user-images.githubusercontent.com/128572637/5d8f7b7f-141d-4800-8772-8fc1
 https://user-images.githubusercontent.com/128572637/3e23c5f1-31d8-49a8-9013-123a6e97ac3b
 
 https://user-images.githubusercontent.com/128572637/162adc7d-a416-49e5-8dde-73590119b1a9
+
+# Tip
 
 ## Todo
 
