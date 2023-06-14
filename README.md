@@ -15,6 +15,20 @@
 
 ## [FAQ](assets/FAQ.md) | [Tip](assets/Tip.md)
 
+# Install
+
+- System requirement: Ubuntu20.04
+- Tested environment: RTX3090, RTX4090
+
+```bash
+git clone https://github.com/Gorilla-Lab-SCUT/Fantasia3D.git
+cd Fantasia3D
+```
+
+```bash
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+pip install -r requirements.txt
+```
 ## Demos
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
