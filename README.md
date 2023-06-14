@@ -23,6 +23,10 @@ Answer: Our initial hypothesis is that normal and mask images, representing loca
 
 Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and appearance generation together, following NeRF. Our adoption of the disentangled representation is mainly motivated by the difference of problem nature for generating surface geometry and appearance. In fact, when dealing with finer recovery of surface geometry from multi-view images, methods (e.g.,  VolSDF, nvdiffrec, etc) that explicitly take the surface modeling into account triumph; our disentangled representation enjoys the benefit similar to these methods. The disentangled representation also enables us to include the BRDF material representation in the appearance modeling, achieving better photo-realistic rendering by the BRDF physical prior.
 
+# Notes
+
+**If you have any questions, please feel free to raise them in the issue and we are happy to help you resolve them.**
+
 # Install
 
 - System requirement: Ubuntu20.04
@@ -50,6 +54,7 @@ soon....
 ```bash
 
 ```
+
 ## Demos
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
