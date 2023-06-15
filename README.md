@@ -150,8 +150,7 @@ https://user-images.githubusercontent.com/128572637/3e23c5f1-31d8-49a8-9013-123a
 
 https://user-images.githubusercontent.com/128572637/162adc7d-a416-49e5-8dde-73590119b1a9
 
-https://user-images.githubusercontent.com/128572637/e5f90a30-8060-49d6-bea7-194709147063
-
+https://user-images.githubusercontent.com/128572637/2b20a978-df20-4150-b272-5dac58d64908
 ## Todo
 
 - [x] Release the code. (2023.06.15)
