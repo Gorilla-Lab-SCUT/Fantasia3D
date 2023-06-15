@@ -35,17 +35,46 @@ pip install -r requirements.txt
 ```
 
 # Start
-soon....
+All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
 - zero-shot generation
-
 ```bash
-
+# Multi-GPU training
+...
+# Geometry modeling using 8 GPU
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/car_geometry.json
+# Geometry modeling using 4 GPU
+python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/car_geometry.json
+# Appearance modeling using 8 GPU
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/car_appearance_strategy0.json
+# Appearance modeling using 4 GPU
+python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/car_appearance_strategy0.json
+...
+# Single GPU training (Only test on the pineapple)
+# Geometry modeling
+python3  train.py --config configs/pineapple_geometry_single_gpu.json
+# Appearance modeling
+python3  train.py --config configs/pineapple_appearance_strategy0_single_gpu.json
 ```
 
 - user-guided generation
 
 ```bash
-
+# Multi-GPU training
+...
+# Geometry modeling using 8 GPU
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/Gundam_geometry.json
+# Geometry modeling using 4 GPU
+python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/Gundam_geometry.json
+# Appearance modeling using 8 GPU
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/Gundam_appearance.json
+# Appearance modeling using 4 GPU
+python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/Gundam_appearance.json
+...
+# Single GPU training
+# Geometry modeling
+python3  train.py --config configs/Gundam_geometry.json
+# Appearance modeling
+python3  train.py --config configs/Gundam_appearance.json
 ```
 
 # Tips
@@ -123,7 +152,7 @@ https://user-images.githubusercontent.com/128572637/162adc7d-a416-49e5-8dde-7359
 
 ## Todo
 
-- [ ] Release the code. (2023.06.15) (The code has been organized. We are working on the configuration files to facilitate the reproduction of the results in the paper)
+- [x] Release the code. (2023.06.15)
 - [ ] Support the VSD loss proposed by ProlificDreamer.
 
 ## BibTex
