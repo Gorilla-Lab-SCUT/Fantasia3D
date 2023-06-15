@@ -150,11 +150,17 @@ https://user-images.githubusercontent.com/128572637/3e23c5f1-31d8-49a8-9013-123a
 
 https://user-images.githubusercontent.com/128572637/162adc7d-a416-49e5-8dde-73590119b1a9
 
+https://user-images.githubusercontent.com/128572637/e5f90a30-8060-49d6-bea7-194709147063
+
 ## Todo
 
 - [x] Release the code. (2023.06.15)
 - [ ] Support the VSD loss proposed by ProlificDreamer.
 
+## Acknowlegment
+- [NVdiffrec](https://github.com/NVlabs/nvdiffrec)
+- [Stable-DreamFusion](https://github.com/ashawkey/stable-dreamfusion)
+- [threestudio](https://github.com/threestudio-project/threestudio)
 ## BibTex
 ```
 @article{chen2023fantasia3d,
