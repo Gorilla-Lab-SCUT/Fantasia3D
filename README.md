@@ -5,15 +5,11 @@
  
 #### <p align="center">[Paper](https://fantasia3d.github.io/assets/Fantasia3D.pdf) | [ArXiv](http://arxiv.org/abs/2303.13873) | [Project Page](https://fantasia3d.github.io/) | [Supp_material](https://fantasia3d.github.io/assets/supp_materials.pdf) | [Video](https://www.youtube.com/watch?v=Xbzl4HzFiNo)</p>
 
-
-
 <p align="center">
   <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
-<p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
-
-# FAQ
+# FAQs
 
 ***Q1***: *About the use of normal and mask images as the input of stable diffusion model and analysis*
 
@@ -22,10 +18,6 @@ Answer: Our initial hypothesis is that normal and mask images, representing loca
 ***Q2***: *Hypothesis-verification analysis of the disentangled representation*
 
 Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and appearance generation together, following NeRF. Our adoption of the disentangled representation is mainly motivated by the difference of problem nature for generating surface geometry and appearance. In fact, when dealing with finer recovery of surface geometry from multi-view images, methods (e.g.,  VolSDF, nvdiffrec, etc) that explicitly take the surface modeling into account triumph; our disentangled representation enjoys the benefit similar to these methods. The disentangled representation also enables us to include the BRDF material representation in the appearance modeling, achieving better photo-realistic rendering by the BRDF physical prior.
-
-# Notes
-
-**If you have any questions, please feel free to raise them in the issue and we are happy to help you resolve them.**
 
 # Install
 
@@ -55,6 +47,51 @@ soon....
 ```bash
 
 ```
+
+# Tips
+
+- **(geometry modeling) Provide a proportional prior of the target shape.**  
+You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
+
+```bash
+"mode": "geometry_modeling",
+"sdf_init_shape": "ellipsoid",
+"sdf_init_shape_scale": [0.56, 0.56, 0.84]
+```
+
+There is a situation where ellipsoid cannot provide a proportional prior, such as the generation of an animal. In this case, using ellipsoid initialization can easily cause the generated animal to have multiple feet.
+Run the following command to examine:
+```bash
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_fail_multi_face.json 
+```
+Instead, you can use the sketch shape of a quadruped as a proportional prior to generating any animal shape you want. 
+```bash
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_succeed.json
+```
+In other situations, such as the generation of the human-like body, a human sketch shape can be used.
+```bash
+python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/Gundam_geometry.json
+```
+
+- **(geometry modeling) Increae the number of iterations in the early phase**  The early phase is very crucial to create a coarse and correct shape. The late phase just focuses on attaining finer geometry details so there will be no significant changes in the overall shape. Increase the number of the parameter "coarse_iter" if you find that the contour of the geometric shape does not match the text description.
+
+- **(geometry modeling) Use larger resolution of the tetrahedron.** A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50.
+
+- **(appearance modeling) Use different strategy.** We offer two strategy (0 or 1) to optimize the appearance by setting the parametry "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 can generate more natural color than strategy 0.
+
+strategy 0 can be used as follow.
+```bash
+"sds_weight_strategy": 0,
+"early_time_step_range": [0.02, 0.98],
+"late_time_step_range": [0.02, 0.5]
+```
+
+strategy 1 can be used as follow:
+```bash
+"sds_weight_strategy": 1,
+"early_time_step_range": [0.02, 0.98],
+"late_time_step_range": [0.02, 0.7]
+```
 # Coordinate System
 
 <img width="30%" src="assets/coordinate_system.jpg"/>
@@ -83,8 +120,6 @@ https://user-images.githubusercontent.com/128572637/5d8f7b7f-141d-4800-8772-8fc1
 https://user-images.githubusercontent.com/128572637/3e23c5f1-31d8-49a8-9013-123a6e97ac3b
 
 https://user-images.githubusercontent.com/128572637/162adc7d-a416-49e5-8dde-73590119b1a9
-
-# Tip
 
 ## Todo
 
