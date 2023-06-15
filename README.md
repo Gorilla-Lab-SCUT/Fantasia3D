@@ -63,9 +63,9 @@ soon....
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
 
-<div>
-  <video src="https://user-images.githubusercontent.com/128572637/244950828-21956cae-e6c4-42ce-89cd-a912c271de51.mp4" width="30%" controls></video>
-  <video src="https://user-images.githubusercontent.com/128572637/244950909-0eb363f6-9bf3-4553-9090-fd1fd0003d67.mp4" width="30%" controls></video>
+<div style="white-space: nowrap;">
+  <video src="https://user-images.githubusercontent.com/128572637/244950828-21956cae-e6c4-42ce-89cd-a912c271de51.mp4" style="display: inline-block; width: 400px;" controls></video>
+  <video src="https://user-images.githubusercontent.com/128572637/244950909-0eb363f6-9bf3-4553-9090-fd1fd0003d67.mp4" style="display: inline-block; width: 400px;" controls></video>
 </div>
 
 https://user-images.githubusercontent.com/128572637/af266a61-afd4-451b-b4b8-89e77e96233e 
