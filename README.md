@@ -68,8 +68,7 @@ You can download and watch some demos' training process in [Google drive](https:
   <video src="https://user-images.githubusercontent.com/128572637/244950909-0eb363f6-9bf3-4553-9090-fd1fd0003d67.mp4" width="30%" controls></video>
 </div>
 
-https://user-images.githubusercontent.com/128572637/af266a61-afd4-451b-b4b8-89e77e96233e
-
+https://user-images.githubusercontent.com/128572637/af266a61-afd4-451b-b4b8-89e77e96233e 
 https://user-images.githubusercontent.com/128572637/c0a09f43-c07f-43e9-ab9f-c49aa3bc3e2c
 
 https://user-images.githubusercontent.com/128572637/0071b97a-93ce-4332-9f80-a3297b54f8c3
