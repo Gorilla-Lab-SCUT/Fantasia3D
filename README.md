@@ -8,7 +8,7 @@
 
 
 <p align="center">
-  <img width="40%" src="https://github.com/Gorilla-Lab-SCUT/Fantasia3D/blob/main/assets/head_figure.jpg"/>
+  <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
 <p align="center"> We are working on releasing the code... 🏗️ 🚧 🔨</p>
@@ -41,6 +41,7 @@ cd Fantasia3D
 pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
+
 # Start
 soon....
 - zero-shot generation
@@ -54,6 +55,9 @@ soon....
 ```bash
 
 ```
+# Coordinate System
+
+<img width="30%" src="assets/coordinate_system.jpg"/>
 
 ## Demos
 
