@@ -156,7 +156,7 @@ https://user-images.githubusercontent.com/128572637/2b20a978-df20-4150-b272-5dac
 - [x] Release the code. (2023.06.15)
 - [ ] Support the VSD loss proposed by ProlificDreamer.
 
-## Acknowlegment
+## Acknowledgement
 - [NVdiffrec](https://github.com/NVlabs/nvdiffrec)
 - [Stable-DreamFusion](https://github.com/ashawkey/stable-dreamfusion)
 - [threestudio](https://github.com/threestudio-project/threestudio)
