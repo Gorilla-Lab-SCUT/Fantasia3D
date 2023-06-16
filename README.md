@@ -115,6 +115,8 @@ python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs
 
 - **(appearance modeling) Use different strategy.** We offer two strategy (0 or 1) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 can generate more natural color than strategy 0.
 
+- **(appearance modeling) Use different HDR environment maps.** We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
+
 strategy 0 can be used as follow.
 ```bash
 "sds_weight_strategy": 0,
