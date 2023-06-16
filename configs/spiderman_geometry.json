@@ -21,5 +21,6 @@
     "fovy_range": [25.71, 45],
     "elevation_range": [-10, 45],
     "guidance_weight": 100,
-    "translation_y": 0
+    "translation_y": 0,
+    "if_flip_the_normal": true
 }

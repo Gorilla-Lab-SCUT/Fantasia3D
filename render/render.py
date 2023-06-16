@@ -37,7 +37,8 @@ def shade(
         bsdf,
         if_nomral,
         normal_rotate,
-        mode
+        mode,
+        if_flip_the_normal
     ):
 
     ################################################################################
@@ -105,7 +106,8 @@ def shade(
             assert False, "Invalid mode type"
     elif bsdf == 'normal':
         shaded_col = gb_normal1
-        # shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.
+        if if_flip_the_normal:
+            shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.
     elif bsdf == 'tangent':
         shaded_col = (gb_tangent + 1.0)*0.5
     elif bsdf == 'kd':
@@ -140,7 +142,8 @@ def render_layer(
         bsdf,
         if_nomral,
         normal_rotate,
-        mode
+        mode,
+        if_flip_the_normal
     ):
 
     full_res = [resolution[0]*spp, resolution[1]*spp]
@@ -182,7 +185,7 @@ def render_layer(
     ################################################################################
 
     buffers = shade(gb_pos, gb_geometric_normal, gb_normal, gb_tangent, gb_texc, gb_texc_deriv, 
-        view_pos, lgt, mesh.material, bsdf,if_nomral,normal_rotate, mode)
+        view_pos, lgt, mesh.material, bsdf,if_nomral,normal_rotate, mode, if_flip_the_normal)
         
     ################################################################################
     # Prepare output
@@ -216,7 +219,8 @@ def render_mesh(
         bsdf        = None,
         if_nomral = False,
         normal_rotate = None,
-        mode = 'geometry_modeling'
+        mode = 'geometry_modeling',
+        if_flip_the_normal = False
     ):
 
     def prepare_input_vector(x):
@@ -249,7 +253,7 @@ def render_mesh(
     with dr.DepthPeeler(ctx, v_pos_clip, mesh.t_pos_idx.int(), full_res) as peeler:
         for _ in range(num_layers):
             rast, db = peeler.rasterize_next_layer()
-            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_nomral, normal_rotate, mode ), rast)]
+            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_nomral, normal_rotate, mode, if_flip_the_normal ), rast)]
 
     # Setup background
     if background is not None:

@@ -287,6 +287,7 @@ class Trainer(torch.nn.Module):
         self.optimize_light = optimize_light
         self.FLAGS = FLAGS
         self.guidance = guidance
+        self.if_flip_the_normal = FLAGS.if_flip_the_normal
         if self.FLAGS.mode == 'appearance_modeling':
             if not self.optimize_light:
                 with torch.no_grad():
@@ -306,7 +307,7 @@ class Trainer(torch.nn.Module):
         if if_pretain:        
             return self.geometry.decoder.pre_train_ellipsoid(it, scene_and_vertices)
         else:
-            return self.geometry.tick(glctx, target, self.light, self.material, it , if_nomral, self.guidance, self.FLAGS.mode)
+            return self.geometry.tick(glctx, target, self.light, self.material, it , if_nomral, self.guidance, self.FLAGS.mode, self.if_flip_the_normal)
 
 def optimize_mesh(
     glctx,
@@ -524,6 +525,7 @@ if __name__ == "__main__":
     parser.add_argument('--early_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in early phase")
     parser.add_argument('--late_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in late phase")
     parser.add_argument("--sdf_init_shape_rotate_x", type= int, nargs=1, default= 0 , help="rotation of the initial shape on the x-axis")
+    parser.add_argument("--if_flip_the_normal", action='store_true', default=False , help="Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.")
     
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model

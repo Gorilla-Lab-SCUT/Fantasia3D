@@ -20,5 +20,6 @@
     "camera_random_jitter": 0.4,
     "fovy_range": [25.71, 45],
     "elevation_range": [-45, 10],
-    "guidance_weight": 100
+    "guidance_weight": 100,
+    "if_flip_the_normal": true
 }

@@ -13,12 +13,13 @@
     "train_background": "black",
     "validate" : true,
     "mesh_scale" : 2.3,
-    "out_dir": "car",
+    "out_dir": "car1",
     "text" : "A car made out of cheese",
     "seed" : 42,
     "add_directional_text": true,
     "camera_random_jitter": 0.4,
     "fovy_range": [25.71, 45],
     "elevation_range": [-10, 45],
-    "guidance_weight": 100
+    "guidance_weight": 100,
+    "if_flip_the_normal": true
 }

@@ -78,6 +78,13 @@ python3  train.py --config configs/Gundam_appearance.json
 ```
 
 # Tips
+- **(Both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter"
+
+- **(Both) Larger batch size.** Larger batch size can help with the faster convergence. Correspoing parameter is "batch"
+
+- **(Both) Try different seeds.** Different seeds can bring diverse results.
+
+- **(Both) Scale the object.** Increase the proportion of initialized objects in the FOV = 45 screen can reinforce the quality for both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
 
 - **(geometry modeling) Provide a proportional prior of the target shape.**  
 You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
@@ -106,7 +113,7 @@ python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs
 
 - **(geometry modeling) Use larger resolution of the tetrahedron.** A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50.
 
-- **(appearance modeling) Use different strategy.** We offer two strategy (0 or 1) to optimize the appearance by setting the parametry "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 can generate more natural color than strategy 0.
+- **(appearance modeling) Use different strategy.** We offer two strategy (0 or 1) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 can generate more natural color than strategy 0.
 
 strategy 0 can be used as follow.
 ```bash

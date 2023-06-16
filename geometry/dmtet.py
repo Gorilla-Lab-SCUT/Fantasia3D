@@ -208,7 +208,7 @@ class DMTetGeometry(torch.nn.Module):
 
         return imesh
 
-    def render(self, glctx, target, lgt, opt_material, bsdf=None, if_nomral=False, mode = 'geometry_modeling'):
+    def render(self, glctx, target, lgt, opt_material, bsdf=None, if_nomral=False, mode = 'geometry_modeling', if_flip_the_normal = False):
         opt_mesh = self.getMesh(opt_material) 
         return render.render_mesh(glctx, 
                                   opt_mesh, 
@@ -222,15 +222,16 @@ class DMTetGeometry(torch.nn.Module):
                                   bsdf= bsdf,
                                   if_nomral= if_nomral,
                                   normal_rotate= target['normal_rotate'],
-                                  mode = mode
+                                  mode = mode,
+                                  if_flip_the_normal = if_flip_the_normal
                                   )
 
         
-    def tick(self, glctx, target, lgt, opt_material, iteration, if_nomral, guidance, mode):
+    def tick(self, glctx, target, lgt, opt_material, iteration, if_nomral, guidance, mode, if_flip_the_normal):
         # ==============================================================================================
         #  Render optimizable object with identical conditions
         # ==============================================================================================
-        buffers= self.render(glctx, target, lgt, opt_material, if_nomral= if_nomral, mode = mode)
+        buffers= self.render(glctx, target, lgt, opt_material, if_nomral= if_nomral, mode = mode, if_flip_the_normal = if_flip_the_normal)
         if self.FLAGS.add_directional_text:
             text_embeddings = torch.cat([guidance.uncond_z[target['prompt_index']], guidance.text_z[target['prompt_index']]]) # [B*2, 77, 1024]
         else:
