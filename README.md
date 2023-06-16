@@ -40,7 +40,7 @@ All the results in the paper were generated using 8 3090 GPUs. We cannot guarant
 ```bash
 # Multi-GPU training
 ...
-# Geometry modeling using 8 GPU
+# Geometry modeling using 8 GPU 
 python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/car_geometry.json
 # Geometry modeling using 4 GPU
 python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/car_geometry.json
@@ -49,10 +49,10 @@ python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs
 # Appearance modeling using 4 GPU
 python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/car_appearance_strategy0.json
 ...
-# Single GPU training (Only test on the pineapple)
-# Geometry modeling
+# Single GPU training (Only test on the pineapple). 
+# Geometry modeling. It takes about 15 minutes on 3090 GPU.
 python3  train.py --config configs/pineapple_geometry_single_gpu.json
-# Appearance modeling
+# Appearance modeling. It takes about 15 minutes on 3090 GPU.
 python3  train.py --config configs/pineapple_appearance_strategy0_single_gpu.json
 ```
 
