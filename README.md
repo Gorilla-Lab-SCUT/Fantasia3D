@@ -84,7 +84,7 @@ python3  train.py --config configs/Gundam_appearance.json
 
 - **(both) Try different seeds.** Different seeds can bring diverse results.
 
-- **(both) Scale the object.** Increase the proportion of initialized objects in the FOV = 45 screen can reinforce the quality for both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
+- **(both) Scale the object.** Increasing the proportion of initialized objects in the FOV = 45 screens can reinforce the quality of both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
 
 - **(geometry modeling) Provide a proportional prior of the target shape.**  
 You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
