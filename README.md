@@ -78,9 +78,9 @@ python3  train.py --config configs/Gundam_appearance.json
 ```
 
 # Tips
-- **(both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter"
+- **(both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter".
 
-- **(both) Larger batch size.** A larger batch size can help with the faster convergence. Corresponding parameter is "batch"
+- **(both) Larger batch size.** A larger batch size can help with the faster convergence. Corresponding parameter is "batch".
 
 - **(both) Try different seeds.** Different seeds can bring diverse results.
 
