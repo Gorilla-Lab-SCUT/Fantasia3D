@@ -130,6 +130,12 @@ strategy 1 can be used as follow:
 "early_time_step_range": [0.02, 0.98],
 "late_time_step_range": [0.02, 0.7]
 ```
+or
+```bash
+"sds_weight_strategy": 1,
+"early_time_step_range": [0.02, 0.98],
+"late_time_step_range": [0.02, 0.98]
+```
 # Coordinate System
 
 <img width="30%" src="assets/coordinate_system.jpg"/>
