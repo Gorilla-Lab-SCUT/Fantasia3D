@@ -78,13 +78,13 @@ python3  train.py --config configs/Gundam_appearance.json
 ```
 
 # Tips
-- **(Both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter"
+- **(both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter"
 
-- **(Both) Larger batch size.** Larger batch size can help with the faster convergence. Correspoing parameter is "batch"
+- **(both) Larger batch size.** A larger batch size can help with the faster convergence. Corresponding parameter is "batch"
 
-- **(Both) Try different seeds.** Different seeds can bring diverse results.
+- **(both) Try different seeds.** Different seeds can bring diverse results.
 
-- **(Both) Scale the object.** Increase the proportion of initialized objects in the FOV = 45 screen can reinforce the quality for both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
+- **(both) Scale the object.** Increase the proportion of initialized objects in the FOV = 45 screen can reinforce the quality for both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
 
 - **(geometry modeling) Provide a proportional prior of the target shape.**  
 You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
@@ -161,6 +161,7 @@ https://user-images.githubusercontent.com/128572637/2b20a978-df20-4150-b272-5dac
 ## Todo
 
 - [x] Release the code. (2023.06.15)
+- [ ] Support the gradient accumulation technique for single GPU training.
 - [ ] Support the VSD loss proposed by ProlificDreamer.
 
 ## Acknowledgement
