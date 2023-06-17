@@ -33,6 +33,9 @@ cd Fantasia3D
 pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
+# What do you want?
+
+Considering that parameter tuning may require some experience, what kind of object do you want me to generate? Please speak freely in the issue area. I will take some time to implement some requirements and update the corresponding configuration files for your convenience in reproducing.
 
 # Start
 All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
