@@ -147,6 +147,10 @@ or
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
 
+https://user-images.githubusercontent.com/128572637/5872edbf-f87f-4dfe-9f71-f3941b84b8d7
+
+https://user-images.githubusercontent.com/128572637/17ce275c-26bc-482e-ab61-a61f442de458
+
 https://user-images.githubusercontent.com/128572637/a0d6fe70-b055-44a9-a34d-1449672dca7f
 
 https://user-images.githubusercontent.com/128572637/ed0c303c-7554-4589-a1f5-56c9c1916aef
