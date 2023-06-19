@@ -35,7 +35,7 @@ def shade(
         lgt,
         material,
         bsdf,
-        if_nomral,
+        if_normal,
         normal_rotate,
         mode,
         if_flip_the_normal
@@ -72,7 +72,7 @@ def shade(
     # if 'no_perturbed_nrm' in material and material['no_perturbed_nrm']:
     # 
     perturbed_nrm = None
-    if if_nomral:
+    if if_normal:
      
         bsdf = 'normal'
      
@@ -140,7 +140,7 @@ def render_layer(
         spp,
         msaa,
         bsdf,
-        if_nomral,
+        if_normal,
         normal_rotate,
         mode,
         if_flip_the_normal
@@ -185,7 +185,7 @@ def render_layer(
     ################################################################################
 
     buffers = shade(gb_pos, gb_geometric_normal, gb_normal, gb_tangent, gb_texc, gb_texc_deriv, 
-        view_pos, lgt, mesh.material, bsdf,if_nomral,normal_rotate, mode, if_flip_the_normal)
+        view_pos, lgt, mesh.material, bsdf,if_normal,normal_rotate, mode, if_flip_the_normal)
         
     ################################################################################
     # Prepare output
@@ -217,7 +217,7 @@ def render_mesh(
         msaa        = False,
         background  = None, 
         bsdf        = None,
-        if_nomral = False,
+        if_normal = False,
         normal_rotate = None,
         mode = 'geometry_modeling',
         if_flip_the_normal = False
@@ -253,7 +253,7 @@ def render_mesh(
     with dr.DepthPeeler(ctx, v_pos_clip, mesh.t_pos_idx.int(), full_res) as peeler:
         for _ in range(num_layers):
             rast, db = peeler.rasterize_next_layer()
-            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_nomral, normal_rotate, mode, if_flip_the_normal ), rast)]
+            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_normal, normal_rotate, mode, if_flip_the_normal ), rast)]
 
     # Setup background
     if background is not None:

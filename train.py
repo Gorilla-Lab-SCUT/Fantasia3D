@@ -298,16 +298,16 @@ class Trainer(torch.nn.Module):
         self.geo_params = list(self.geometry.parameters()) if optimize_geometry else []
       
 
-    def forward(self, target, it,if_nomral, if_pretain, scene_and_vertices ):
+    def forward(self, target, it,if_normal, if_pretrain, scene_and_vertices ):
         if self.FLAGS.mode == 'appearance_modeling':
             if self.optimize_light:
                 self.light.build_mips()
                 if self.FLAGS.camera_space_light:
                     self.light.xfm(target['mv'])
-        if if_pretain:        
+        if if_pretrain:        
             return self.geometry.decoder.pre_train_ellipsoid(it, scene_and_vertices)
         else:
-            return self.geometry.tick(glctx, target, self.light, self.material, it , if_nomral, self.guidance, self.FLAGS.mode, self.if_flip_the_normal)
+            return self.geometry.tick(glctx, target, self.light, self.material, it , if_normal, self.guidance, self.FLAGS.mode, self.if_flip_the_normal)
 
 def optimize_mesh(
     glctx,
@@ -401,20 +401,20 @@ def optimize_mesh(
         iter_start_time = time.time()
         if FLAGS.mode =='geometry_modeling':
             if it<=400:
-                if_pretain = True
+                if_pretrain = True
             else:
-                if_pretain = False
-            if_nomral =True
+                if_pretrain = False
+            if_normal =True
         else:
-            if_pretain = False
-            if_nomral = False
+            if_pretrain = False
+            if_normal = False
         
         with torch.cuda.amp.autocast(enabled= True):
-            if if_pretain == True:
-                reg_loss = model(target, it, if_nomral, if_pretain= if_pretain, scene_and_vertices = scene_and_vertices)
+            if if_pretrain== True:
+                reg_loss = model(target, it, if_normal, if_pretrain= if_pretrain, scene_and_vertices = scene_and_vertices)
                 img_loss = 0 
-            if if_pretain == False:
-                sds_loss,img_loss, reg_loss = model(target, it, if_nomral, if_pretain= if_pretain, scene_and_vertices =None)
+            if if_pretrain == False:
+                sds_loss,img_loss, reg_loss = model(target, it, if_normal, if_pretrain= if_pretrain, scene_and_vertices =None)
     
         # ==============================================================================================
         #  Final loss
@@ -423,10 +423,10 @@ def optimize_mesh(
         total_loss = img_loss + reg_loss 
         
         # model.geometry.decoder.net.params.grad /= 100
-        if if_pretain == True:
+        if if_pretrain == True:
             scaler.scale(total_loss).backward()
             
-        if if_pretain == False:
+        if if_pretrain == False:
             scaler.scale(sds_loss).backward()
             img_loss_vec.append(img_loss.item())
 
@@ -436,11 +436,11 @@ def optimize_mesh(
         #  Backpropagate
         # ==============================================================================================
 
-        if if_nomral == False and  if_pretain == False:
+        if if_normal == False and  if_pretrain == False:
             scaler.step(optimizer)
             optimizer.zero_grad()
           
-        if if_nomral == True or if_pretain == True:
+        if if_normal == True or if_pretrain == True:
             if optimize_geometry:
                 scaler.step(optimizer_mesh)
                 optimizer_mesh.zero_grad()
@@ -467,7 +467,7 @@ def optimize_mesh(
         # ==============================================================================================
         #  Logging
         # ==============================================================================================
-        if it % log_interval == 0 and FLAGS.local_rank == 0 and if_pretain == False:
+        if it % log_interval == 0 and FLAGS.local_rank == 0 and if_pretrain == False:
             img_loss_avg = np.mean(np.asarray(img_loss_vec[-log_interval:]))
             reg_loss_avg = np.mean(np.asarray(reg_loss_vec[-log_interval:]))
             iter_dur_avg = np.mean(np.asarray(iter_dur_vec[-log_interval:]))
@@ -519,7 +519,7 @@ if __name__ == "__main__":
     parser.add_argument('--fovy_range', nargs=2, type=float, default=[25.71, 45.00])
     parser.add_argument('--elevation_range', nargs=2, type=int, default=[-10, 45], help="The elevatioin range must in [-90, 90].")
     parser.add_argument("--guidance_weight", type=int, default=100, help="The weight of classifier-free guidance")
-    parser.add_argument("--sds_weight_strategy", type=int, nargs=1, default=0, choices=[0, 1], help="The strategy of the sds loss's weight")
+    parser.add_argument("--sds_weight_strategy", type=int, nargs=1, default=0, choices=[0, 1, 2], help="The strategy of the sds loss's weight")
     parser.add_argument("--translation_y", type= float, nargs=1, default= 0 , help="translation of the initial shape on the y-axis")
     parser.add_argument("--coarse_iter", type= int, nargs=1, default= 1000 , help="The iteration number of the coarse stage.")
     parser.add_argument('--early_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in early phase")

@@ -63,7 +63,7 @@ class DLMesh(torch.nn.Module):
         imesh = mesh.compute_tangents(imesh)
         return imesh
 
-    def render(self, glctx, target, lgt, opt_material, bsdf=None,if_nomral=False, mode = 'appearance_modeling', if_flip_the_normal = False):
+    def render(self, glctx, target, lgt, opt_material, bsdf=None,if_normal=False, mode = 'appearance_modeling', if_flip_the_normal = False):
         opt_mesh = self.getMesh(opt_material)
         return render.render_mesh(glctx, 
                                   opt_mesh,
@@ -75,17 +75,17 @@ class DLMesh(torch.nn.Module):
                                   msaa=True,
                                   background= target['background'] ,
                                   bsdf= bsdf,
-                                  if_nomral=if_nomral,
+                                  if_normal=if_normal,
                                   normal_rotate=target['normal_rotate'], 
                                   mode = mode,
                                   if_flip_the_normal = if_flip_the_normal
                                    )
 
-    def tick(self, glctx, target, lgt, opt_material, iteration, if_nomral, guidance,  mode, if_flip_the_normal):
+    def tick(self, glctx, target, lgt, opt_material, iteration, if_normal, guidance,  mode, if_flip_the_normal):
         # ==============================================================================================
         #  Render optimizable object with identical conditions
         # ==============================================================================================
-        buffers= self.render(glctx, target, lgt, opt_material, if_nomral = if_nomral, mode = mode,  if_flip_the_normal = if_flip_the_normal)
+        buffers= self.render(glctx, target, lgt, opt_material, if_normal = if_normal, mode = mode,  if_flip_the_normal = if_flip_the_normal)
         if self.FLAGS.add_directional_text:
             text_embeddings = torch.cat([guidance.uncond_z[target['prompt_index']], guidance.text_z[target['prompt_index']]])
         else:
@@ -122,6 +122,11 @@ class DLMesh(torch.nn.Module):
             # w = 1 / torch.sqrt(1 - guidance.alphas[t])
             # w = (1 - guidance.alphas[t]) 
             w = 1 / (1 - guidance.alphas[t])
+        elif guidance.sds_weight_strategy == 2:
+            if iteration <= self.FLAGS.coarse_iter:
+                w = guidance.alphas[t] ** 0.5 * (1 - guidance.alphas[t])
+            else:
+                w = 1 / (1 - guidance.alphas[t])
         w = w[:, None, None, None] # [B, 1, 1, 1]
         grad = w* (noise_pred -noise) 
         grad = torch.nan_to_num(grad)

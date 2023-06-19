@@ -1,8 +1,8 @@
 {
     "mode": "appearance_modeling",
-    "base_mesh": "out/dog/dmtet_mesh/mesh.obj",
+    "base_mesh": "out/sandcastle/dmtet_mesh/mesh.obj",
     "random_textures": true,
-    "iter": 1000,
+    "iter": 2000,
     "coarse_iter": 300,
     "save_interval": 100,
     "texture_res": [ 2048, 2048 ],
@@ -17,15 +17,15 @@
     "env_scale" : 2.0,
     "train_background": "black",
     "validate" : true,
-    "out_dir": "dog_appearance",
-    "text" : "Michelangelo style statue of dog reading news on a cellphone",
+    "out_dir": "sandcastle_appearance2",
+    "text" : "A highly detailed sandcastle",
     "seed" : 42,
     "add_directional_text": true,
-    "camera_random_jitter": 0.2,
+    "camera_random_jitter": 0.3,
     "fovy_range": [25.71, 45],
     "elevation_range": [-10, 45],
     "guidance_weight": 50,
-    "sds_weight_strategy": 0,
+    "sds_weight_strategy": 1,
     "early_time_step_range": [0.02, 0.98],
-    "late_time_step_range": [0.02, 0.98]
+    "late_time_step_range": [0.02, 0.7]
 }

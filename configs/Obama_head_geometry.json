@@ -2,6 +2,7 @@
     "mode": "geometry_modeling",
     "sdf_init_shape": "ellipsoid",
     "sdf_init_shape_scale": [0.6, 0.85, 0.6],
+    "sdf_init_shape_rotate_x" : -15,
     "iter": 3000,
     "coarse_iter": 1500,
     "save_interval": 100,
