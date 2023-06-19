@@ -128,7 +128,12 @@ strategy 0 can be used as follow.
 "early_time_step_range": [0.02, 0.98],
 "late_time_step_range": [0.02, 0.5]
 ```
-
+or
+```bash
+"sds_weight_strategy": 0,
+"early_time_step_range": [0.02, 0.98],
+"late_time_step_range": [0.02, 0.98]
+```
 strategy 1 can be used as follow:
 ```bash
 "sds_weight_strategy": 1,
@@ -141,6 +146,13 @@ or
 "early_time_step_range": [0.02, 0.98],
 "late_time_step_range": [0.02, 0.98]
 ```
+strategy 2 can be used as follow:
+```bash
+"sds_weight_strategy": 2,
+"early_time_step_range": [0.02, 0.98],
+"late_time_step_range": [0.02, 0.98]
+```
+
 # Coordinate System
 
 <img width="30%" src="assets/coordinate_system.jpg"/>
