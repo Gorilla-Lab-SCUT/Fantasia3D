@@ -192,7 +192,7 @@ python3  train.py --config configs/Gundam_appearance.json
   "late_time_step_range": [0.02, 0.98]
   ```
 
-- **(appearance modeling) Use different HDR environment maps.** Learning the PBR materials is an ill-posed problem. If materials and lighting are learned together, it will increase the difficulty of learning. So We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
+- ***(appearance modeling) Use different HDR environment maps.*** Learning the PBR materials is an ill-posed problem. If materials and lighting are learned together, it will increase the difficulty of learning. So We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
 
 # Coordinate System
 
