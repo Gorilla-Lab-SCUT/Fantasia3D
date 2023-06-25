@@ -27,7 +27,7 @@ Considering that parameter tuning may require some experience, what kind of obje
 
 Firstly, upload the videos, including the geometry or appearance, to the [Gallery](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19). Write down the text to generate the object, the performance, the resolution of the tetrahedron for geometry modeling, and the strategy adopted for appearance modeling. 
 
-Subsequently, upload the configuration file under the directory of configs. If you will upload the file about the user-guided generation, the guided mesh should also be uploaded under the directory of data. The naming rule of the file is as follows.
+Subsequently, upload the configuration file under the directory of `configs`. If you will upload the file about the user-guided generation, the guided mesh should also be uploaded under the directory of `data`. The naming rule of the file is as follows.
 
 For the file of zero-shot geometry modeling:
 ```bash
