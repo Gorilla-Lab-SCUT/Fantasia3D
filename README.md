@@ -19,6 +19,10 @@ Answer: Our initial hypothesis is that normal and mask images, representing loca
 
 Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and appearance generation together, following NeRF. Our adoption of the disentangled representation is mainly motivated by the difference of problem nature for generating surface geometry and appearance. In fact, when dealing with finer recovery of surface geometry from multi-view images, methods (e.g.,  VolSDF, nvdiffrec, etc) that explicitly take the surface modeling into account triumph; our disentangled representation enjoys the benefit similar to these methods. The disentangled representation also enables us to include the BRDF material representation in the appearance modeling, achieving better photo-realistic rendering by the BRDF physical prior.
 
+***Q3***: *Can Fantasia3D directly fine-tune the mesh given by the user?*
+
+Answer: Yes, it can. Fantasia3D can receive any mesh given by the user and fine-tune it using our method of user-guided generation. It can also naturally interface with the 3D generative method like shape-e and point-e. In a word, Fantasia3D can generate highly detailed and high-fidelity 3D content based on either the low-quality mesh given by the users or the ellipsoid.
+
 # What do you want?
 
 Considering that parameter tuning may require some experience, what kind of object do you want me to generate? Please speak freely in the issue area. I will take some time to implement some requirements and update the corresponding configuration files for your convenience in reproducing.
@@ -152,6 +156,8 @@ python3  train.py --config configs/Gundam_appearance.json
 - ***(geometry modeling) Use different range of time step in the early phase.*** We usually use the time steps range [0.02,0.5] in the early phase. But in some cases where you want to "grow" more parts based on the initialized shape, it may fail to generate all parts. For instance, the text "An astronaut riding a horse", may fail to "grow" the part of the astronaut using the range [0.02, 0.5] since the fact that low time steps have little contribution to significant deformation. To address this problem, we recommend you use a high range, such as [0.4, 0.6]. You can try different ranges and publish your findings in the issue.
 
 - ***(geometry modeling) Rotate the object.*** Rotating the object according to the actual situation can alleviate janus-problem or help the network in mode-seeking. For example, when generating a human head statue, rotate the initialized ellipsoid around the x-axis by some angle to match the situation where the back of the person's head has some curvature.
+
+- ***(geometry modeling) Fine-tune the input mesh.*** Under the task of user-guided generation, if you are satisfied with the silhouette of the input mesh and just want to increase the details of the geometry, set the parameter "coarse_iter" to 400. This setting would directly enter the late phase of geometry modeling which reinforces the local geometric details of the input shape.
 
 - ***(appearance modeling) Use different strategy.*** We offer three strategy (0 or 1 or 2) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1 or 2, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 or 2 can generate more natural color than strategy 0.
     
