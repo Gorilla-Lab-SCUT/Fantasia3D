@@ -19,23 +19,56 @@ Answer: Our initial hypothesis is that normal and mask images, representing loca
 
 Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and appearance generation together, following NeRF. Our adoption of the disentangled representation is mainly motivated by the difference of problem nature for generating surface geometry and appearance. In fact, when dealing with finer recovery of surface geometry from multi-view images, methods (e.g.,  VolSDF, nvdiffrec, etc) that explicitly take the surface modeling into account triumph; our disentangled representation enjoys the benefit similar to these methods. The disentangled representation also enables us to include the BRDF material representation in the appearance modeling, achieving better photo-realistic rendering by the BRDF physical prior.
 
+# What do you want?
+
+Considering that parameter tuning may require some experience, what kind of object do you want me to generate? Please speak freely in the issue area. I will take some time to implement some requirements and update the corresponding configuration files for your convenience in reproducing.
+
+# Contribute to Fantasia3D
+
+First, upload the videos, including the geometry or appearance, to the [Gallery](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19). Write down the text to generate the object, the performance, the resolution of the tetrahedron for geometry modeling, and the strategy adopted for appearance modeling. 
+
+Consequently, upload the configuration file under the directory of configs. If you will upload the file about the user-guided generation, the guided mesh should also be uploaded under the directory of data. The naming rule of the file is as follows.
+
+For the file of zero-shot geometry modeling:
+```bash
+{The key word of the text}_geometry_zero_shot_{the number of gpu}_gpu.json
+```
+For the file of user-guided geometry modeling:
+```bash
+{The key word of the text}_geometry_user_guided_{the number of gpu}_gpu.json
+```
+For the file of appearance modeling:
+```bash
+{The key word of the text}_appearance_strategy{the strategy adopted}_{the number of gpu}_gpu.json.
+ ```
 # Install
 
 - System requirement: Ubuntu20.04
-- Tested environment: RTX3090, RTX4090
+- Tested GPUs: RTX3090, RTX4090
 
+We provide two choices to install the environment.
+- (Option 1) Use the file  requirements.txt to install all packages one by one. It may fail since the complexity of some packages.
+
+  ```bash
+  pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+  pip install -r requirements.txt
+  ```
+- (Option 2) Use the docker image to deploy the environment in the Ubuntu system quickly. 
+
+  ```bash
+  docker pull registry.cn-guangzhou.aliyuncs.com/baopin/fantasia3d:1.0
+  ```
+  Due to the Internet Network Delay, the package of xformers was not installed in this docker image. Install it by hand after you create a docker container using this docker image. 
+
+  ```bash
+  pip install git+https://github.com/facebookresearch/xformers.git@main#egg=xformers
+  ```
+
+After the successful deployment of the environment, clone the repository of Fantasia3D and get started.
 ```bash
 git clone https://github.com/Gorilla-Lab-SCUT/Fantasia3D.git
 cd Fantasia3D
 ```
-
-```bash
-pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
-pip install -r requirements.txt
-```
-# What do you want?
-
-Considering that parameter tuning may require some experience, what kind of object do you want me to generate? Please speak freely in the issue area. I will take some time to implement some requirements and update the corresponding configuration files for your convenience in reproducing.
 
 # Start
 All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
@@ -81,77 +114,79 @@ python3  train.py --config configs/Gundam_appearance.json
 ```
 
 # Tips
-- **(both) Train longer.** Training longer may help with the finer details. You can train longer by setting the parameter "iter".
+- ***(both) Train longer.*** Training longer may help with the finer details. You can train longer by setting the parameter "iter".
 
-- **(both) Larger batch size.** A larger batch size can help with the faster convergence. Corresponding parameter is "batch".
+- ***(both) Larger batch size.*** A larger batch size can help with the faster convergence. Corresponding parameter is "batch".
 
-- **(both) Try different seeds.** Different seeds can bring diverse results.
+- ***(both) Try different seeds.*** Different seeds can bring diverse results.
 
-- **(both) Scale the object.** Increasing the proportion of initialized objects in the FOV = 45 screens can reinforce the quality of both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
+- ***(both) Scale the object.*** Increasing the proportion of initialized objects in the FOV = 45 screens can reinforce the quality of both the geometry and appearance modeling. For geometry modeling, it can attain more local geometric details. For appearance modeling, this method can reduce the probability of saturated or strange colors appearing, as it reduces the proportion of background colors in the image. We found that if the proportion of background color is too high, it can easily lead to saturation and strange colors.
 
-- **(geometry modeling) Provide a proportional prior of the target shape.**  
-You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
+- ***(geometry modeling) Provide a proportional prior of the target shape.***  You can scale the default sphere with a radius of 1 to an ellipsoid. For instance, make the radius of the ellipsoid on the z-axis larger if you want to generate "A car made out of cheese".
 
-```bash
-"mode": "geometry_modeling",
-"sdf_init_shape": "ellipsoid",
-"sdf_init_shape_scale": [0.56, 0.56, 0.84]
-```
+  ```bash
+  "mode": "geometry_modeling",
+  "sdf_init_shape": "ellipsoid",
+  "sdf_init_shape_scale": [0.56, 0.56, 0.84]
+  ```
 
-There is a situation where ellipsoid cannot provide a proportional prior, such as the generation of an animal. In this case, using ellipsoid initialization can easily cause the generated animal to have multiple feet.
-Run the following command to examine:
-```bash
-python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_fail_multi_face.json 
-```
-Instead, you can use the sketch shape of a quadruped as a proportional prior to generating any animal shape you want. 
-```bash
-python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_succeed.json
-```
-In other situations, such as the generation of the human-like body, a human sketch shape can be used.
-```bash
-python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/Gundam_geometry.json
-```
+  There is a situation where ellipsoid cannot provide a proportional prior, such as the generation of an animal. In this case, using ellipsoid initialization can easily cause the generated animal to have multiple feet.
+  Run the following command to examine:
 
-- **(geometry modeling) Increae the number of iterations in the early phase**  The early phase is very crucial to create a coarse and correct shape. The late phase just focuses on attaining finer geometry details so there will be no significant changes in the overall shape. Increase the number of the parameter "coarse_iter" if you find that the contour of the geometric shape does not match the text description.
+  ```bash
+  python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_fail_multi_face.json 
+  ```
+  Instead, you can use the sketch shape of a quadruped as a proportional prior to generating any animal shape you want. 
+  ```bash
+  python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/elephant_geometry_succeed.json
+  ```
+  In other situations, such as the generation of the human-like body, a human sketch shape can be used.
+  ```bash
+  python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs/Gundam_geometry.json
+    ```
 
-- **(geometry modeling) Use larger resolution of the tetrahedron.** A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50.
+- ***(geometry modeling) Increae the number of iterations in the early phase.***  The early phase is very crucial to create a coarse and correct shape. The late phase just focuses on attaining finer geometry details so there will be no significant changes in the overall shape. Increase the number of the parameter "coarse_iter" if you find that the contour of the geometric shape does not match the text description.
 
-- **(geometry modeling) Rotate the object.** Rotating the object according to the actual situation can alleviate janus-problem or help the network in mode-seeking. For example, when generating a human head statue, rotate the initialized ellipsoid around the x-axis by some angle to match the situation where the back of the person's head has some curvature.
+- ***(geometry modeling) Use larger resolution of the tetrahedron.*** A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50. In my experience, a single GPU is suitable for using a resolution of 128 instead of 256. If you want to obtain a high-detail model at 256 resolution, multi-GPU training is necessary. In addition, the effect of multiple GPUs is much better than a single GPU for objects with obvious directionality, such as human head statues. BTW, using the gradient accumulation technique for a single GPU may achieve the effect of multiple GPUs, but I haven't tested it yet.
 
-- **(appearance modeling) Use different strategy.** We offer three strategy (0 or 1 or 2) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1 or 2, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 or 2 can generate more natural color than strategy 0.
+- ***(geometry modeling) Use different range of time step in the early phase.*** We usually use the time steps range [0.02,0.5] in the early phase. But in some cases where you want to "grow" more parts based on the initialized shape, it may fail to generate all parts. For instance, the text "An astronaut riding a horse", may fail to "grow" the part of the astronaut using the range [0.02, 0.5] since the fact that low time steps have little contribution to significant deformation. To address this problem, we recommend you use a high range, such as [0.4, 0.6]. You can try different ranges and publish your findings in the issue.
+
+- ***(geometry modeling) Rotate the object.*** Rotating the object according to the actual situation can alleviate janus-problem or help the network in mode-seeking. For example, when generating a human head statue, rotate the initialized ellipsoid around the x-axis by some angle to match the situation where the back of the person's head has some curvature.
+
+- ***(appearance modeling) Use different strategy.*** We offer three strategy (0 or 1 or 2) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1 or 2, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 or 2 can generate more natural color than strategy 0.
+    
+  strategy 0 can be used as follow.
+  ```bash
+  "sds_weight_strategy": 0,
+  "early_time_step_range": [0.02, 0.98],
+  "late_time_step_range": [0.02, 0.5]
+  ```
+  or
+  ```bash
+  "sds_weight_strategy": 0,
+  "early_time_step_range": [0.02, 0.98],
+  "late_time_step_range": [0.02, 0.98]
+  ```
+  strategy 1 can be used as follow:
+  ```bash
+  "sds_weight_strategy": 1,
+  "early_time_step_range": [0.02, 0.98],
+  "late_time_step_range": [0.02, 0.7]
+  ```
+  or
+  ```bash
+  "sds_weight_strategy": 1,
+  "early_time_step_range": [0.02, 0.98],
+  "late_time_step_range": [0.02, 0.98]
+  ```
+  strategy 2 can be used as follow:
+  ```bash
+  "sds_weight_strategy": 2,
+  "early_time_step_range": [0.02, 0.98],
+  "late_time_step_range": [0.02, 0.98]
+  ```
 
 - **(appearance modeling) Use different HDR environment maps.** Learning the PBR materials is an ill-posed problem. If materials and lighting are learned together, it will increase the difficulty of learning. So We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
-
-strategy 0 can be used as follow.
-```bash
-"sds_weight_strategy": 0,
-"early_time_step_range": [0.02, 0.98],
-"late_time_step_range": [0.02, 0.5]
-```
-or
-```bash
-"sds_weight_strategy": 0,
-"early_time_step_range": [0.02, 0.98],
-"late_time_step_range": [0.02, 0.98]
-```
-strategy 1 can be used as follow:
-```bash
-"sds_weight_strategy": 1,
-"early_time_step_range": [0.02, 0.98],
-"late_time_step_range": [0.02, 0.7]
-```
-or
-```bash
-"sds_weight_strategy": 1,
-"early_time_step_range": [0.02, 0.98],
-"late_time_step_range": [0.02, 0.98]
-```
-strategy 2 can be used as follow:
-```bash
-"sds_weight_strategy": 2,
-"early_time_step_range": [0.02, 0.98],
-"late_time_step_range": [0.02, 0.98]
-```
 
 # Coordinate System
 
