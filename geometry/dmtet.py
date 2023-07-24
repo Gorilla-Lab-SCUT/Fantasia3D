@@ -13,7 +13,6 @@ import torch
 from render import mesh
 from render import render
 from render import util
-import kaolin
 from geometry.dmtet_network import Decoder
 from render import regularizer
 import torch.nn.functional as F
@@ -249,6 +248,8 @@ class DMTetGeometry(torch.nn.Module):
             srgb =  buffers['shaded'][...,0:3] #* buffers['shaded'][..., 3:4] # normal * mask
             # 
             pred_rgb_512 = srgb.permute(0, 3, 1, 2).contiguous() # [B, 3, 512, 512]
+            # pred_rgb_256= F.interpolate(pred_rgb_512, (256, 256), mode='bilinear', align_corners=False)
+            # pred_rgb_512 = F.interpolate(pred_rgb_256, (512, 512), mode='bilinear', align_corners=False)
             latents = guidance.encode_imgs(pred_rgb_512)
    
         with torch.no_grad():

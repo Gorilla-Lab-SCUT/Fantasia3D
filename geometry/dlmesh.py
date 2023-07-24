@@ -133,7 +133,7 @@ class DLMesh(torch.nn.Module):
         sds_loss = SpecifyGradient.apply(latents, grad) 
         img_loss = torch.tensor([0], dtype=torch.float32, device="cuda")
         reg_loss = torch.tensor([0], dtype=torch.float32, device="cuda")
-        # reg_loss = torch.mean(buffers['kd_grad'][..., :-1] * buffers['kd_grad'][..., -1:]) *10
+        # reg_loss = torch.mean(buffers['kd_grad'][..., :-1] * buffers['kd_grad'][..., -1:]) *100
      
         return sds_loss, img_loss, reg_loss
     

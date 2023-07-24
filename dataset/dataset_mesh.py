@@ -46,6 +46,7 @@ class DatasetMesh(torch.utils.data.Dataset):
         self.fovy_range_max     = np.deg2rad(FLAGS.fovy_range[1])
         self.elevation_range_min= np.deg2rad(FLAGS.elevation_range[0])
         self.elevation_range_max= np.deg2rad(FLAGS.elevation_range[1])
+        self.angle_front        = np.deg2rad(FLAGS.front_threshold)
     def _gif_scene(self, itr):
         fovy = np.deg2rad(45)
         proj_mtx = util.perspective(fovy, self.FLAGS.display_res[1] / self.FLAGS.display_res[0], self.FLAGS.cam_near_far[0], self.FLAGS.cam_near_far[1])
@@ -100,9 +101,9 @@ class DatasetMesh(torch.utils.data.Dataset):
             rotate_y = np.random.uniform(np.deg2rad(-180), np.deg2rad(180)) #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
     
         rotate_x = -np.random.uniform(self.elevation_range_min, self.elevation_range_max)
-        angle_front = np.deg2rad(45)
-        prompt_index = get_view_direction(thetas= rotate_x, phis = rotate_y, front= angle_front)
-        cam_radius = 3 
+        # angle_front = np.deg2rad(45)
+        prompt_index = get_view_direction(thetas= rotate_x, phis = rotate_y, front= self.angle_front)
+        cam_radius = 3
         x = np.random.uniform(-self.FLAGS.camera_random_jitter, self.FLAGS.camera_random_jitter)
         y = np.random.uniform(-self.FLAGS.camera_random_jitter, self.FLAGS.camera_random_jitter)
         mv     = util.translate(x, y, -cam_radius) @ (util.rotate_x(rotate_x) @ util.rotate_y(rotate_y))
