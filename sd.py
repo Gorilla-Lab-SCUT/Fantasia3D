@@ -51,6 +51,7 @@ class StableDiffusion(nn.Module):
             self.uncond_z = []
             for d in ['front', 'side', 'back', 'side']:
                 text = f"{self.text}, {d} view"
+                # text = f"{d} view of {self.text}"
                 negative_text = f"{self.negative_text}"
                 # if d == 'back': negative_text += "face"
                 text_z = self.get_text_embeds([text], batch = 1)

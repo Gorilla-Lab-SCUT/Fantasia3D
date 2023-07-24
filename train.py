@@ -34,7 +34,6 @@ from render import texture
 from render import mlptexture
 from render import light
 from render import render
-import ipdb
 from sd import StableDiffusion
 from tqdm import tqdm
 import open3d as o3d
@@ -165,7 +164,7 @@ def initial_guness_material(geometry, mlp, FLAGS, init_mat=None):
 # Validation & testing
 ###############################################################################
 # @torch.no_grad()  
-def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS):
+def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS, relight = None):
     result_dict = {}
     with torch.no_grad():
         if FLAGS.mode == 'appearance_modeling':
@@ -173,10 +172,14 @@ def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS):
                 lgt.build_mips()
                 if FLAGS.camera_space_light:
                     lgt.xfm(target['mv'])
-
+                if relight != None:
+                    relight.build_mips()
         buffers = geometry.render(glctx, target, lgt, opt_material)
         result_dict['shaded'] =  buffers['shaded'][0, ..., 0:3]
         result_dict['shaded'] = util.rgb_to_srgb(result_dict['shaded'])
+        if relight != None:
+            result_dict['relight'] = geometry.render(glctx, target, relight, opt_material)['shaded'][0, ..., 0:3]
+            result_dict['relight'] = util.rgb_to_srgb(result_dict['relight'])
         result_dict['mask'] = (buffers['shaded'][0, ..., 3:4])
         result_image = result_dict['shaded']
 
@@ -187,12 +190,12 @@ def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS):
                     if isinstance(lgt, light.EnvironmentLight):
                         result_dict['light_image'] = util.cubemap_to_latlong(lgt.base, FLAGS.display_res)
                     result_image = torch.cat([result_image, result_dict['light_image']], axis=1)
-                elif 'relight' in layer:
-                    if not isinstance(layer['relight'], light.EnvironmentLight):
-                        layer['relight'] = light.load_env(layer['relight'])
-                    img = geometry.render(glctx, target, layer['relight'], opt_material)
-                    result_dict['relight'] = util.rgb_to_srgb(img[..., 0:3])[0]
-                    result_image = torch.cat([result_image, result_dict['relight']], axis=1)
+                # elif 'relight' in layer:
+                #     if not isinstance(layer['relight'], light.EnvironmentLight):
+                #         layer['relight'] = light.load_env(layer['relight'])
+                #     img = geometry.render(glctx, target, layer['relight'], opt_material)
+                #     result_dict['relight'] = util.rgb_to_srgb(img[..., 0:3])[0]
+                #     result_image = torch.cat([result_image, result_dict['relight']], axis=1)
                 elif 'bsdf' in layer:
                     buffers  = geometry.render(glctx, target, lgt, opt_material, bsdf=layer['bsdf'])
                     if layer['bsdf'] == 'kd':
@@ -215,7 +218,7 @@ def save_gif(dir,fps):
     imageio.mimsave(os.path.join(dir, 'eval.gif'),frames,'GIF',duration=1/fps)
     
 @torch.no_grad()     
-def validate(glctx, geometry, opt_material, lgt, dataset_validate, out_dir, FLAGS):
+def validate(glctx, geometry, opt_material, lgt, dataset_validate, out_dir, FLAGS, relight= None):
 
     # ==============================================================================================
     #  Validation loop
@@ -228,12 +231,14 @@ def validate(glctx, geometry, opt_material, lgt, dataset_validate, out_dir, FLAG
     os.makedirs(out_dir, exist_ok=True)
     
     shaded_dir = os.path.join(out_dir, "shaded")
+    relight_dir = os.path.join(out_dir, "relight")
     kd_dir = os.path.join(out_dir, "kd")
     ks_dir = os.path.join(out_dir, "ks")
     normal_dir = os.path.join(out_dir, "normal")
     mask_dir = os.path.join(out_dir, "mask")
     
     os.makedirs(shaded_dir, exist_ok=True)
+    os.makedirs(relight_dir, exist_ok=True)
     os.makedirs(kd_dir, exist_ok=True)
     os.makedirs(ks_dir, exist_ok=True)
     os.makedirs(normal_dir, exist_ok=True)
@@ -246,11 +251,13 @@ def validate(glctx, geometry, opt_material, lgt, dataset_validate, out_dir, FLAG
         # Mix validation background
         target = prepare_batch(target, 'white')
 
-        result_image, result_dict = validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS)
+        result_image, result_dict = validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS, relight)
         for k in result_dict.keys():
             np_img = result_dict[k].detach().cpu().numpy()
             if k == 'shaded':
                 util.save_image(shaded_dir + '/' + ('val_%06d_%s.png' % (it, k)), np_img)
+            elif k == 'relight':
+                util.save_image(relight_dir + '/' + ('val_%06d_%s.png' % (it, k)), np_img)
             elif k == 'kd':
                 util.save_image(kd_dir + '/' + ('val_%06d_%s.png' % (it, k)), np_img)
             elif k == 'ks':
@@ -261,6 +268,8 @@ def validate(glctx, geometry, opt_material, lgt, dataset_validate, out_dir, FLAG
                 util.save_image(mask_dir + '/' + ('val_%06d_%s.png' % (it, k)), np_img)
     if 'shaded' in result_dict.keys():
         save_gif(shaded_dir,30)
+    if 'relight' in result_dict.keys():
+        save_gif(relight_dir,30)
     if 'kd' in result_dict.keys():
         save_gif(kd_dir,30)
     if 'ks' in result_dict.keys():
@@ -332,13 +341,15 @@ def optimize_mesh(
     if optimize_geometry: 
         
         optimizer_mesh = torch.optim.AdamW(model.geo_params, lr=0.001, betas=(0.9, 0.99), eps=1e-15)
-   
+        # scheduler_mesh = torch.optim.lr_scheduler.MultiStepLR(optimizer_mesh,
+        #                                                 [400],
+        #                                                 0.1)
     optimizer = torch.optim.AdamW(model.params, lr=0.01, betas=(0.9, 0.99), eps=1e-15)
     if FLAGS.multi_gpu: 
         model = model.cuda()
         model = torch.nn.parallel.DistributedDataParallel(model,
                                                         device_ids=[FLAGS.local_rank],
-                                                        find_unused_parameters=True
+                                                        find_unused_parameters= True
                                                         )
         
     img_cnt = 0
@@ -413,6 +424,7 @@ def optimize_mesh(
             if if_pretrain== True:
                 reg_loss = model(target, it, if_normal, if_pretrain= if_pretrain, scene_and_vertices = scene_and_vertices)
                 img_loss = 0 
+                sds_loss = 0 
             if if_pretrain == False:
                 sds_loss,img_loss, reg_loss = model(target, it, if_normal, if_pretrain= if_pretrain, scene_and_vertices =None)
     
@@ -420,14 +432,14 @@ def optimize_mesh(
         #  Final loss
         # ==============================================================================================
         
-        total_loss = img_loss + reg_loss 
+        total_loss = img_loss + reg_loss + sds_loss
         
         # model.geometry.decoder.net.params.grad /= 100
         if if_pretrain == True:
             scaler.scale(total_loss).backward()
             
         if if_pretrain == False:
-            scaler.scale(sds_loss).backward()
+            scaler.scale(total_loss).backward()
             img_loss_vec.append(img_loss.item())
 
         reg_loss_vec.append(reg_loss.item())
@@ -443,6 +455,7 @@ def optimize_mesh(
         if if_normal == True or if_pretrain == True:
             if optimize_geometry:
                 scaler.step(optimizer_mesh)
+                # scheduler_mesh.step()
                 optimizer_mesh.zero_grad()
                 
 
@@ -514,7 +527,7 @@ if __name__ == "__main__":
     parser.add_argument("--add_directional_text", action='store_true', default=False)
     parser.add_argument('--mode', default='geometry_modeling', choices=['geometry_modeling', 'appearance_modeling'])
     parser.add_argument('--text', default=None, help="text prompt")
-    parser.add_argument('--sdf_init_shape', default='ellipsoid', choices=['ellipsoid', 'custom_mesh'])
+    parser.add_argument('--sdf_init_shape', default='ellipsoid', choices=['ellipsoid', 'cylinder', 'custom_mesh'])
     parser.add_argument('--camera_random_jitter', type= float, default=0.4, help="A large value is advantageous for the extension of objects such as ears or sharp corners to grow.")
     parser.add_argument('--fovy_range', nargs=2, type=float, default=[25.71, 45.00])
     parser.add_argument('--elevation_range', nargs=2, type=int, default=[-10, 45], help="The elevatioin range must in [-90, 90].")
@@ -526,7 +539,7 @@ if __name__ == "__main__":
     parser.add_argument('--late_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in late phase")
     parser.add_argument("--sdf_init_shape_rotate_x", type= int, nargs=1, default= 0 , help="rotation of the initial shape on the x-axis")
     parser.add_argument("--if_flip_the_normal", action='store_true', default=False , help="Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.")
-    
+    parser.add_argument("--front_threshold", type= int, nargs=1, default= 45 , help="the range of front view would be [-front_threshold, front_threshold")
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64, 128 and 256 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
@@ -534,7 +547,7 @@ if __name__ == "__main__":
     
     FLAGS.env_scale           = 1.0                      # Env map intensity multiplier
     FLAGS.envmap              = None                     # HDR environment probe
-    FLAGS.envmap1             = None                     # HDR environment probe
+    FLAGS.relight             = None                     # HDR environment probe(relight)
     FLAGS.display             = None                     # Conf validation window/display. E.g. [{"relight" : <path to envlight>}]
     FLAGS.camera_space_light  = False                    # Fixed light in camera space. This is needed for setups like ethiopian head where the scanned object rotates on a stand.
     FLAGS.lock_light          = False                    # Disable light optimization in the second pass
@@ -605,9 +618,11 @@ if __name__ == "__main__":
         lgt = None
         # lgt1 = light.load_env(FLAGS.envmap1, scale=FLAGS.env_scale)
     
-    if FLAGS.sdf_init_shape in ['ellipsoid', 'custom_mesh'] and FLAGS.mode == 'geometry_modeling':
+    if FLAGS.sdf_init_shape in ['ellipsoid', 'cylinder', 'custom_mesh'] and FLAGS.mode == 'geometry_modeling':
         if FLAGS.sdf_init_shape == 'ellipsoid':
             init_shape = o3d.geometry.TriangleMesh.create_sphere(1)
+        elif FLAGS.sdf_init_shape == 'cylinder':
+            init_shape = o3d.geometry.TriangleMesh.create_cylinder(radius=0.6, height=0.8, resolution=20, split=4, create_uv_map=False)
         elif FLAGS.sdf_init_shape == 'custom_mesh':
             if FLAGS.base_mesh:
                 init_shape = get_normalize_mesh(FLAGS.base_mesh)
@@ -686,7 +701,9 @@ if __name__ == "__main__":
         #  Validate
         # ==============================================================================================
         if FLAGS.validate and FLAGS.local_rank == 0:
-            validate(glctx, geometry, mat, lgt, dataset_gif, os.path.join(FLAGS.out_dir, "validate"), FLAGS)
+            if FLAGS.relight != None:       
+                relight = light.load_env(FLAGS.relight, scale=FLAGS.env_scale)
+            validate(glctx, geometry, mat, lgt, dataset_gif, os.path.join(FLAGS.out_dir, "validate"), FLAGS, relight)
         base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
         torch.cuda.empty_cache()
         mat['kd_ks_normal'].cleanup()
