@@ -73,10 +73,7 @@ def shade(
     # 
     perturbed_nrm = None
     if if_normal:
-     
         bsdf = 'normal'
-     
-    
     #produces a final normal used for shading  [B, 512, 512, 3]
     gb_normal = ru.prepare_shading_normal(gb_pos, view_pos, perturbed_nrm, gb_normal, gb_tangent, gb_geometric_normal, two_sided_shading=True, opengl=True)
     # gb_normal1 = gb_normal 
@@ -173,12 +170,14 @@ def render_layer(
     face_normal_indices = (torch.arange(0, face_normals.shape[0], dtype=torch.int64, device='cuda')[:, None]).repeat(1, 3) #[10688,3] 三角面片每个顶点的法线的索引
     gb_geometric_normal, _ = interpolate(face_normals[None, ...], rast_out_s, face_normal_indices.int())
     # Compute tangent space
-    assert mesh.v_nrm is not None and mesh.v_tng is not None
+    # assert mesh.v_nrm is not None and mesh.v_tng is not None
     gb_normal, _ = interpolate(mesh.v_nrm[None, ...], rast_out_s, mesh.t_nrm_idx.int())
-    gb_tangent, _ = interpolate(mesh.v_tng[None, ...], rast_out_s, mesh.t_tng_idx.int()) # Interpolate tangents
+    gb_tangent = torch.tensor([0, 0, 0], dtype=torch.float32, device='cuda', requires_grad=False)[None, None, None, ...]
+    # gb_tangent, _ = interpolate(mesh.v_tng[None, ...], rast_out_s, mesh.t_tng_idx.int()) # Interpolate tangents
     # Texture coordinate
-    assert mesh.v_tex is not None
-    gb_texc, gb_texc_deriv = interpolate(mesh.v_tex[None, ...], rast_out_s, mesh.t_tex_idx.int(), rast_db=rast_out_deriv_s)
+    # assert mesh.v_tex is not None
+    # gb_texc, gb_texc_deriv = interpolate(mesh.v_tex[None, ...], rast_out_s, mesh.t_tex_idx.int(), rast_db=rast_out_deriv_s)
+    gb_texc, gb_texc_deriv = 0, 0
 
     ################################################################################
     # Shade

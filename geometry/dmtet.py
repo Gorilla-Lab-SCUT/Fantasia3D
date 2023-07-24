@@ -150,16 +150,16 @@ class DMTet:
         ), dim=0)
        
         # Get global face index (static, does not depend on topology)
-        num_tets = tet_fx4.shape[0] 
-        tet_gidx = torch.arange(num_tets, dtype=torch.long, device="cuda")[valid_tets] 
-        face_gidx = torch.cat((
-            tet_gidx[num_triangles == 1]*2,
-            torch.stack((tet_gidx[num_triangles == 2]*2, tet_gidx[num_triangles == 2]*2 + 1), dim=-1).view(-1)
-        ), dim=0)
+        # num_tets = tet_fx4.shape[0] 
+        # tet_gidx = torch.arange(num_tets, dtype=torch.long, device="cuda")[valid_tets] 
+        # face_gidx = torch.cat((
+        #     tet_gidx[num_triangles == 1]*2,
+        #     torch.stack((tet_gidx[num_triangles == 2]*2, tet_gidx[num_triangles == 2]*2 + 1), dim=-1).view(-1)
+        # ), dim=0)
 
-        uvs, uv_idx = self.map_uv(faces, face_gidx, num_tets*2)
+        # uvs, uv_idx = self.map_uv(faces, face_gidx, num_tets*2)
 
-        return verts, faces, uvs, uv_idx
+        return verts, faces
 
 ###############################################################################
 #  Geometry interface
@@ -197,14 +197,10 @@ class DMTetGeometry(torch.nn.Module):
         
         self.sdf , self.deform =  pred[:, 0], pred[:, 1:]  
         v_deformed = self.verts + 1 / (self.grid_res ) * torch.tanh(self.deform)
-        verts, faces, uvs, uv_idx = self.marching_tets(v_deformed, self.sdf, self.indices)
+        verts, faces = self.marching_tets(v_deformed, self.sdf, self.indices)
        
-        imesh = mesh.Mesh(verts, faces, v_tex=uvs, t_tex_idx=uv_idx, material=material)
-
-        # Run mesh operations to generate tangent space
+        imesh = mesh.Mesh(verts, faces, material=material)
         imesh = mesh.auto_normals(imesh)
-        imesh = mesh.compute_tangents(imesh)
-
         return imesh
 
     def render(self, glctx, target, lgt, opt_material, bsdf=None, if_normal=False, mode = 'geometry_modeling', if_flip_the_normal = False):

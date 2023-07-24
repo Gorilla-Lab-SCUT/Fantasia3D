@@ -349,7 +349,7 @@ def optimize_mesh(
         model = model.cuda()
         model = torch.nn.parallel.DistributedDataParallel(model,
                                                         device_ids=[FLAGS.local_rank],
-                                                        find_unused_parameters= True
+                                                        find_unused_parameters= (FLAGS.mode =='geometry_modeling')
                                                         )
         
     img_cnt = 0
@@ -597,8 +597,8 @@ if __name__ == "__main__":
     
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
-    glctx = dr.RasterizeGLContext()
-    # glctx = dr.RasterizeCudaContext()
+    # glctx = dr.RasterizeGLContext()
+    glctx = dr.RasterizeCudaContext()
     # ==============================================================================================
     #  Create data pipeline
     # ==============================================================================================
