@@ -38,7 +38,8 @@ def shade(
         if_normal,
         normal_rotate,
         mode,
-        if_flip_the_normal
+        if_flip_the_normal,
+        if_use_bump
     ):
 
     ################################################################################
@@ -71,7 +72,8 @@ def shade(
     ################################################################################
     # if 'no_perturbed_nrm' in material and material['no_perturbed_nrm']:
     # 
-    perturbed_nrm = None
+    if if_use_bump == False or mode == 'geometry_modeling':
+        perturbed_nrm = None
     if if_normal:
         bsdf = 'normal'
     #produces a final normal used for shading  [B, 512, 512, 3]
@@ -140,7 +142,8 @@ def render_layer(
         if_normal,
         normal_rotate,
         mode,
-        if_flip_the_normal
+        if_flip_the_normal,
+        if_use_bump
     ):
 
     full_res = [resolution[0]*spp, resolution[1]*spp]
@@ -170,10 +173,14 @@ def render_layer(
     face_normal_indices = (torch.arange(0, face_normals.shape[0], dtype=torch.int64, device='cuda')[:, None]).repeat(1, 3) #[10688,3] 三角面片每个顶点的法线的索引
     gb_geometric_normal, _ = interpolate(face_normals[None, ...], rast_out_s, face_normal_indices.int())
     # Compute tangent space
-    # assert mesh.v_nrm is not None and mesh.v_tng is not None
+    # 
     gb_normal, _ = interpolate(mesh.v_nrm[None, ...], rast_out_s, mesh.t_nrm_idx.int())
-    gb_tangent = torch.tensor([0, 0, 0], dtype=torch.float32, device='cuda', requires_grad=False)[None, None, None, ...]
-    # gb_tangent, _ = interpolate(mesh.v_tng[None, ...], rast_out_s, mesh.t_tng_idx.int()) # Interpolate tangents
+    if if_use_bump == False or mode == 'geometry_modeling':
+        gb_tangent = torch.tensor([0, 0, 0], dtype=torch.float32, device='cuda', requires_grad=False)[None, None, None, ...]
+    else:
+        assert mesh.v_nrm is not None and mesh.v_tng is not None
+        gb_tangent, _ = interpolate(mesh.v_tng[None, ...], rast_out_s, mesh.t_tng_idx.int()) # Interpolate tangents
+    # 
     # Texture coordinate
     # assert mesh.v_tex is not None
     # gb_texc, gb_texc_deriv = interpolate(mesh.v_tex[None, ...], rast_out_s, mesh.t_tex_idx.int(), rast_db=rast_out_deriv_s)
@@ -184,7 +191,7 @@ def render_layer(
     ################################################################################
 
     buffers = shade(gb_pos, gb_geometric_normal, gb_normal, gb_tangent, gb_texc, gb_texc_deriv, 
-        view_pos, lgt, mesh.material, bsdf,if_normal,normal_rotate, mode, if_flip_the_normal)
+        view_pos, lgt, mesh.material, bsdf,if_normal,normal_rotate, mode, if_flip_the_normal, if_use_bump)
         
     ################################################################################
     # Prepare output
@@ -219,7 +226,8 @@ def render_mesh(
         if_normal = False,
         normal_rotate = None,
         mode = 'geometry_modeling',
-        if_flip_the_normal = False
+        if_flip_the_normal = False,
+        if_use_bump = False
     ):
 
     def prepare_input_vector(x):
@@ -252,7 +260,7 @@ def render_mesh(
     with dr.DepthPeeler(ctx, v_pos_clip, mesh.t_pos_idx.int(), full_res) as peeler:
         for _ in range(num_layers):
             rast, db = peeler.rasterize_next_layer()
-            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_normal, normal_rotate, mode, if_flip_the_normal ), rast)]
+            layers += [(render_layer(rast, db, mesh, view_pos, lgt, resolution, spp, msaa, bsdf, if_normal, normal_rotate, mode, if_flip_the_normal, if_use_bump), rast)]
 
     # Setup background
     if background is not None:

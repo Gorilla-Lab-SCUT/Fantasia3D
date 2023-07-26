@@ -67,7 +67,7 @@ class DatasetMesh(torch.utils.data.Dataset):
         rotate_x = np.random.uniform(-np.pi/4,np.pi/18)
         prompt_index = 0
         mv     = util.translate(0, 0, -3) @ (util.rotate_x(rotate_x) @ util.rotate_y( ang ))
-        normal_rotate =  util.rotate_y_1(-ang)@util.rotate_x_1(-rotate_x) 
+        normal_rotate =  util.rotate_y_1(0)
         mvp    = proj_mtx @ mv
         campos = torch.linalg.inv(mv)[:3, 3]
         return mv[None, ...], mvp[None, ...], campos[None, ...], self.FLAGS.display_res, self.FLAGS.spp, normal_rotate[None,...], prompt_index

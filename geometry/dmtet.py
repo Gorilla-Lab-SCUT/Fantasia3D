@@ -203,7 +203,7 @@ class DMTetGeometry(torch.nn.Module):
         imesh = mesh.auto_normals(imesh)
         return imesh
 
-    def render(self, glctx, target, lgt, opt_material, bsdf=None, if_normal=False, mode = 'geometry_modeling', if_flip_the_normal = False):
+    def render(self, glctx, target, lgt, opt_material, bsdf=None, if_normal=False, mode = 'geometry_modeling', if_flip_the_normal = False, if_use_bump = False):
         opt_mesh = self.getMesh(opt_material) 
         return render.render_mesh(glctx, 
                                   opt_mesh, 
@@ -218,15 +218,16 @@ class DMTetGeometry(torch.nn.Module):
                                   if_normal= if_normal,
                                   normal_rotate= target['normal_rotate'],
                                   mode = mode,
-                                  if_flip_the_normal = if_flip_the_normal
+                                  if_flip_the_normal = if_flip_the_normal,
+                                  if_use_bump = if_use_bump
                                   )
 
         
-    def tick(self, glctx, target, lgt, opt_material, iteration, if_normal, guidance, mode, if_flip_the_normal):
+    def tick(self, glctx, target, lgt, opt_material, iteration, if_normal, guidance, mode, if_flip_the_normal, if_use_bump):
         # ==============================================================================================
         #  Render optimizable object with identical conditions
         # ==============================================================================================
-        buffers= self.render(glctx, target, lgt, opt_material, if_normal= if_normal, mode = mode, if_flip_the_normal = if_flip_the_normal)
+        buffers= self.render(glctx, target, lgt, opt_material, if_normal= if_normal, mode = mode, if_flip_the_normal = if_flip_the_normal, if_use_bump = if_use_bump)
         if self.FLAGS.add_directional_text:
             text_embeddings = torch.cat([guidance.uncond_z[target['prompt_index']], guidance.text_z[target['prompt_index']]]) # [B*2, 77, 1024]
         else:
@@ -260,11 +261,11 @@ class DMTetGeometry(torch.nn.Module):
         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
         noise_pred =noise_pred_uncond + guidance.guidance_weight * (noise_pred_text - noise_pred_uncond) # [B, 4, 64, 64]
         
-        # w = (1 - guidance.alphas[t]) # [B]
+        w = (1 - guidance.alphas[t]) # [B]
         # w = self.guidance.alphas[t]
         # w = 1 / (1 - guidance.alphas[t])
         # w = 1 / torch.sqrt(1 - guidance.alphas[t])
-        w = guidance.alphas[t] ** 0.5 * (1 - guidance.alphas[t])
+        # w = guidance.alphas[t] ** 0.5 * (1 - guidance.alphas[t])
         w = w[:, None, None, None] # [B, 1, 1, 1]
         grad =  w * (noise_pred - noise ) #*w1 
         grad = torch.nan_to_num(grad)

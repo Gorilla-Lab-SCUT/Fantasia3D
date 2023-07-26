@@ -174,11 +174,11 @@ def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS, relight = No
                     lgt.xfm(target['mv'])
                 if relight != None:
                     relight.build_mips()
-        buffers = geometry.render(glctx, target, lgt, opt_material)
+        buffers = geometry.render(glctx, target, lgt, opt_material, if_use_bump = FLAGS.if_use_bump)
         result_dict['shaded'] =  buffers['shaded'][0, ..., 0:3]
         result_dict['shaded'] = util.rgb_to_srgb(result_dict['shaded'])
         if relight != None:
-            result_dict['relight'] = geometry.render(glctx, target, relight, opt_material)['shaded'][0, ..., 0:3]
+            result_dict['relight'] = geometry.render(glctx, target, relight, opt_material, if_use_bump = FLAGS.if_use_bump)['shaded'][0, ..., 0:3]
             result_dict['relight'] = util.rgb_to_srgb(result_dict['relight'])
         result_dict['mask'] = (buffers['shaded'][0, ..., 3:4])
         result_image = result_dict['shaded']
@@ -197,7 +197,7 @@ def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS, relight = No
                 #     result_dict['relight'] = util.rgb_to_srgb(img[..., 0:3])[0]
                 #     result_image = torch.cat([result_image, result_dict['relight']], axis=1)
                 elif 'bsdf' in layer:
-                    buffers  = geometry.render(glctx, target, lgt, opt_material, bsdf=layer['bsdf'])
+                    buffers  = geometry.render(glctx, target, lgt, opt_material, bsdf=layer['bsdf'],  if_use_bump = FLAGS.if_use_bump)
                     if layer['bsdf'] == 'kd':
                         result_dict[layer['bsdf']] = util.rgb_to_srgb(buffers['shaded'][0, ..., 0:3])  
                     elif layer['bsdf'] == 'normal':
@@ -297,6 +297,7 @@ class Trainer(torch.nn.Module):
         self.FLAGS = FLAGS
         self.guidance = guidance
         self.if_flip_the_normal = FLAGS.if_flip_the_normal
+        self.if_use_bump = FLAGS.if_use_bump
         if self.FLAGS.mode == 'appearance_modeling':
             if not self.optimize_light:
                 with torch.no_grad():
@@ -307,7 +308,7 @@ class Trainer(torch.nn.Module):
         self.geo_params = list(self.geometry.parameters()) if optimize_geometry else []
       
 
-    def forward(self, target, it,if_normal, if_pretrain, scene_and_vertices ):
+    def forward(self, target, it, if_normal, if_pretrain, scene_and_vertices ):
         if self.FLAGS.mode == 'appearance_modeling':
             if self.optimize_light:
                 self.light.build_mips()
@@ -316,7 +317,7 @@ class Trainer(torch.nn.Module):
         if if_pretrain:        
             return self.geometry.decoder.pre_train_ellipsoid(it, scene_and_vertices)
         else:
-            return self.geometry.tick(glctx, target, self.light, self.material, it , if_normal, self.guidance, self.FLAGS.mode, self.if_flip_the_normal)
+            return self.geometry.tick(glctx, target, self.light, self.material, it , if_normal, self.guidance, self.FLAGS.mode, self.if_flip_the_normal, self.if_use_bump)
 
 def optimize_mesh(
     glctx,
@@ -330,7 +331,7 @@ def optimize_mesh(
     optimize_light=True,
     optimize_geometry=True,
     guidance = None,
-    scene_and_vertices = None
+    scene_and_vertices = None,
     ):
     
     dataloader_train    = torch.utils.data.DataLoader(dataset_train, batch_size=FLAGS.batch, collate_fn=dataset_train.collate, shuffle=False)
@@ -402,10 +403,10 @@ def optimize_mesh(
                             )  
                     rot_ang += 1
                     if FLAGS.mode =='geometry_modeling':
-                        buffers = geometry.render(glctx, params, lgt, opt_material, bsdf='normal')
+                        buffers = geometry.render(glctx, params, lgt, opt_material, bsdf='normal', if_use_bump = FLAGS.if_use_bump)
                         video_image = (buffers['shaded'][0, ..., 0:3]+1)/2
                     else:
-                        buffers  = geometry.render(glctx, params, lgt, opt_material, bsdf='pbr')
+                        buffers  = geometry.render(glctx, params, lgt, opt_material, bsdf='pbr',  if_use_bump = FLAGS.if_use_bump)
                         video_image = util.rgb_to_srgb(buffers['shaded'][0, ..., 0:3])
                     video_image = video.ready_image(video_image)
                     
@@ -480,18 +481,18 @@ def optimize_mesh(
         # ==============================================================================================
         #  Logging
         # ==============================================================================================
-        if it % log_interval == 0 and FLAGS.local_rank == 0 and if_pretrain == False:
-            img_loss_avg = np.mean(np.asarray(img_loss_vec[-log_interval:]))
-            reg_loss_avg = np.mean(np.asarray(reg_loss_vec[-log_interval:]))
-            iter_dur_avg = np.mean(np.asarray(iter_dur_vec[-log_interval:]))
+        # if it % log_interval == 0 and FLAGS.local_rank == 0 and if_pretrain == False:
+        #     img_loss_avg = np.mean(np.asarray(img_loss_vec[-log_interval:]))
+        #     reg_loss_avg = np.mean(np.asarray(reg_loss_vec[-log_interval:]))
+        #     iter_dur_avg = np.mean(np.asarray(iter_dur_vec[-log_interval:]))
             
-            remaining_time = (FLAGS.iter-it)*iter_dur_avg
-            if optimize_geometry:
-                print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, mesh_lr=%.5f, time=%.1f ms, rem=%s, mat_lr=%.5f" % 
-                    (it, img_loss_avg, reg_loss_avg, optimizer_mesh.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time),optimizer.param_groups[0]['lr']))
-            else:
-                print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, time=%.1f ms, rem=%s, mat_lr=%.5f" % 
-                    (it, img_loss_avg, reg_loss_avg, iter_dur_avg*1000, util.time_to_text(remaining_time),optimizer.param_groups[0]['lr']))
+        #     remaining_time = (FLAGS.iter-it)*iter_dur_avg
+        #     if optimize_geometry:
+        #         print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, mesh_lr=%.5f, time=%.1f ms, rem=%s, mat_lr=%.5f" % 
+        #             (it, img_loss_avg, reg_loss_avg, optimizer_mesh.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time),optimizer.param_groups[0]['lr']))
+        #     else:
+        #         print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, time=%.1f ms, rem=%s, mat_lr=%.5f" % 
+        #             (it, img_loss_avg, reg_loss_avg, iter_dur_avg*1000, util.time_to_text(remaining_time),optimizer.param_groups[0]['lr']))
     return geometry, opt_material
 
 def seed_everything(seed):
@@ -540,6 +541,7 @@ if __name__ == "__main__":
     parser.add_argument("--sdf_init_shape_rotate_x", type= int, nargs=1, default= 0 , help="rotation of the initial shape on the x-axis")
     parser.add_argument("--if_flip_the_normal", action='store_true', default=False , help="Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.")
     parser.add_argument("--front_threshold", type= int, nargs=1, default= 45 , help="the range of front view would be [-front_threshold, front_threshold")
+    parser.add_argument("--if_use_bump", type=bool, default= True , help="whether to use perturbed normals during appearing modeling")
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64, 128 and 256 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
@@ -622,7 +624,7 @@ if __name__ == "__main__":
         if FLAGS.sdf_init_shape == 'ellipsoid':
             init_shape = o3d.geometry.TriangleMesh.create_sphere(1)
         elif FLAGS.sdf_init_shape == 'cylinder':
-            init_shape = o3d.geometry.TriangleMesh.create_cylinder(radius=0.6, height=0.8, resolution=20, split=4, create_uv_map=False)
+            init_shape = o3d.geometry.TriangleMesh.create_cylinder(radius=0.75, height=1.2, resolution=20, split=4, create_uv_map=False)
         elif FLAGS.sdf_init_shape == 'custom_mesh':
             if FLAGS.base_mesh:
                 init_shape = get_normalize_mesh(FLAGS.base_mesh)
@@ -694,8 +696,17 @@ if __name__ == "__main__":
  
         # mat = initial_guness_material(geometry, False, FLAGS, init_mat=base_mesh.material)
         mat = initial_guness_material(geometry, True, FLAGS)
-        geometry, mat = optimize_mesh(glctx, geometry, mat, lgt, dataset_train, dataset_validate, FLAGS, 
-                                      optimize_light=FLAGS.learn_light, optimize_geometry=not FLAGS.lock_pos, guidance= guidance)
+        geometry, mat = optimize_mesh(glctx, 
+                                      geometry, 
+                                      mat, 
+                                      lgt, 
+                                      dataset_train, 
+                                      dataset_validate, 
+                                      FLAGS, 
+                                      optimize_light=FLAGS.learn_light,
+                                      optimize_geometry=not FLAGS.lock_pos, 
+                                      guidance= guidance,
+                                      )
         
         # ==============================================================================================
         #  Validate
@@ -703,6 +714,8 @@ if __name__ == "__main__":
         if FLAGS.validate and FLAGS.local_rank == 0:
             if FLAGS.relight != None:       
                 relight = light.load_env(FLAGS.relight, scale=FLAGS.env_scale)
+            else:
+                relight = None
             validate(glctx, geometry, mat, lgt, dataset_gif, os.path.join(FLAGS.out_dir, "validate"), FLAGS, relight)
         base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
         torch.cuda.empty_cache()
