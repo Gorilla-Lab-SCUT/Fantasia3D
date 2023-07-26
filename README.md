@@ -202,7 +202,7 @@ python3  train.py --config configs/Gundam_appearance.json
 ## Demos
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
-For More demos see [here](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19)
+For more demos see [here](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19)
 https://user-images.githubusercontent.com/128572637/5872edbf-f87f-4dfe-9f71-f3941b84b8d7
 
 https://user-images.githubusercontent.com/128572637/17ce275c-26bc-482e-ab61-a61f442de458
