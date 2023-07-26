@@ -1,6 +1,7 @@
  # <p align="center"> <font color=#008000>Fantasia3D</font>: Disentangling Geometry and Appearance for High-quality Text-to-3D Content Creation </p>
 
  #####  <p align="center"> [Rui Chen*](https://aruichen.github.io/), [Yongwei Chen*](https://cyw-3d.github.io/), [Ningxin Jiao](https://ningxinj.github.io/), [Kui Jia](http://kuijia.site/)</p>
+ ##### <p align="center"> ICCV2023
  ##### <p align="center"> *equal contribution
  
 #### <p align="center">[Paper](https://fantasia3d.github.io/assets/Fantasia3D.pdf) | [ArXiv](http://arxiv.org/abs/2303.13873) | [Project Page](https://fantasia3d.github.io/) | [Supp_material](https://fantasia3d.github.io/assets/supp_materials.pdf) | [Video](https://www.youtube.com/watch?v=Xbzl4HzFiNo)</p>
@@ -48,7 +49,7 @@ For the file of appearance modeling:
 # Install
 
 - System requirement: Ubuntu20.04
-- Tested GPUs: RTX3090, RTX4090
+- Tested GPUs: RTX3090, RTX4090, A100, V100
 
 We provide two choices to install the environment.
 - (Option 1) Use the file  requirements.txt to install all packages one by one. It may fail since the complexity of some packages.
