@@ -10,6 +10,10 @@
   <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
+# Update log
+
+- Fix the bug about using the tangent space normal. (2023.07.26)
+
 # FAQs
 
 ***Q1***: *About the use of normal and mask images as the input of stable diffusion model and analysis*
@@ -203,6 +207,11 @@ python3  train.py --config configs/Gundam_appearance.json
 
 You can download and watch some demos' training process in [Google drive](https://drive.google.com/drive/folders/1cEjXOF_uUSRVRZHE2RDt15CnY9yovEYs?usp=sharing)
 For more demos see [here](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19)
+
+https://user-images.githubusercontent.com/128572637/e3e8bb82-6be0-42d0-9da3-1e59664354dd
+
+https://user-images.githubusercontent.com/128572637/856c12bf-f100-47fc-a22c-80f123bd0a6d
+
 https://user-images.githubusercontent.com/128572637/5872edbf-f87f-4dfe-9f71-f3941b84b8d7
 
 https://user-images.githubusercontent.com/128572637/17ce275c-26bc-482e-ab61-a61f442de458
