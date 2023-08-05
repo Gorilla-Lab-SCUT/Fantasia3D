@@ -11,8 +11,12 @@
 </p>
 
 # Update log
-
-- Fix the bug about using the tangent space normal. (2023.07.26)
+**Please pull the latest code to improve performance!!**
+- (2023.08.05)
+  - Fix the bug about the same seed between different gpus, which may not accelerate convergence. 
+  - Add a part for directly performing UV padding in the code, so there is no need for additional operations in the blender.
+- (2023.07.26)
+  - Fix the bug about using the tangent space normal. 
 
 # FAQs
 
