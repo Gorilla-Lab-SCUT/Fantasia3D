@@ -14,6 +14,9 @@ from . import util
 from . import renderutils as ru
 from . import light
 import numpy as np
+import cv2
+import itertools
+from tqdm import tqdm
 
 # ==============================================================================================
 #  Helper functions
@@ -283,9 +286,11 @@ def render_mesh(
 
     return out_buffers
 
+
 # ==============================================================================================
 #  Render UVs
 # ==============================================================================================
+
 def render_uv(ctx, mesh, resolution, mlp_texture):
 
     # clip space transform 
@@ -296,12 +301,61 @@ def render_uv(ctx, mesh, resolution, mlp_texture):
 
     # rasterize
     rast, _ = dr.rasterize(ctx, uv_clip4, mesh.t_tex_idx.int(), resolution)
-
     # Interpolate world space position
     gb_pos, _ = interpolate(mesh.v_pos[None, ...], rast, mesh.t_pos_idx.int())
-
+    
     # Sample out textures from MLP
     all_tex = mlp_texture.sample(gb_pos)
     assert all_tex.shape[-1] == 9 or all_tex.shape[-1] == 10, "Combined kd_ks_normal must be 9 or 10 channels"
     perturbed_nrm = all_tex[..., -3:]
     return (rast[..., -1:] > 0).float(), all_tex[..., :-6], all_tex[..., -6:-3], util.safe_normalize(perturbed_nrm)
+
+def uv_padding(image, hole_mask, padding = 2, uv_padding_block = 4):
+        uv_padding_size = padding
+        image1 = (image[0].detach().cpu().numpy() * 255).astype(np.uint8)
+        hole_mask = (hole_mask[0].detach().cpu().numpy() * 255).astype(np.uint8)
+        block = uv_padding_block
+        res = image1.shape[0]
+        chunk = res // block 
+        inpaint_image = np.zeros_like(image1)
+        prods = list(itertools.product(range(block), range(block)))
+        for (i, j) in tqdm(prods):
+            patch = cv2.inpaint(
+                image1[i * chunk : (i + 1) * chunk, j * chunk : (j + 1) * chunk],
+                hole_mask[i * chunk : (i + 1) * chunk, j * chunk : (j + 1) * chunk],
+                uv_padding_size,
+                cv2.INPAINT_TELEA,
+            )
+            inpaint_image[i * chunk : (i + 1) * chunk, j * chunk : (j + 1) * chunk] = patch
+        inpaint_image = inpaint_image / 255.0
+        return torch.from_numpy(inpaint_image).to(image)
+    
+def render_uv1(ctx, mesh, resolution, mlp_texture, uv_padding_block):
+
+    # clip space transform 
+    uv_clip = mesh.v_tex[None, ...]*2.0 - 1.0
+
+    # pad to four component coordinate
+    uv_clip4 = torch.cat((uv_clip, torch.zeros_like(uv_clip[...,0:1]), torch.ones_like(uv_clip[...,0:1])), dim = -1)
+
+    # rasterize
+    rast, _ = dr.rasterize(ctx, uv_clip4, mesh.t_tex_idx.int(), resolution)
+    hole_mask = ~(rast[..., 3:] > 0)
+    
+    # Interpolate world space position
+    gb_pos, _ = interpolate(mesh.v_pos[None, ...], rast, mesh.t_pos_idx.int())
+    
+    # Sample out textures from MLP
+    all_tex = mlp_texture.sample(gb_pos)
+    assert all_tex.shape[-1] == 9 or all_tex.shape[-1] == 10, "Combined kd_ks_normal must be 9 or 10 channels"
+    print(f'[INFO] UV padding for Kd...')
+    kd = uv_padding(all_tex[..., :-6] , hole_mask, uv_padding_block)
+    print(f'[INFO] UV padding for Ks...')
+    ks = uv_padding(all_tex[..., -6:-3], hole_mask, uv_padding_block)
+    print(f'[INFO] UV padding for perturbed normal...')
+    perturbed_nrm = uv_padding(util.safe_normalize(all_tex[..., -3:]), hole_mask, uv_padding_block)
+    
+    # kd = all_tex[..., :-6] 
+    # ks = all_tex[..., -6:-3]
+    # perturbed_nrm = util.safe_normalize(all_tex[..., -3:])
+    return (rast[..., -1:] > 0).float(), kd, ks, perturbed_nrm 

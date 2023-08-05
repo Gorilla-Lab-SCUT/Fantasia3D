@@ -45,8 +45,8 @@ class DLMesh(torch.nn.Module):
         self.mesh          = initial_guess.clone()
         print("Base mesh has %d triangles and %d vertices." % (self.mesh.t_pos_idx.shape[0], self.mesh.v_pos.shape[0]))
         
-        self.mesh.v_pos = torch.nn.Parameter(self.mesh.v_pos, requires_grad= True)
-        self.register_parameter('vertex_pos', self.mesh.v_pos)
+        # self.mesh.v_pos = torch.nn.Parameter(self.mesh.v_pos, requires_grad= True)
+        # self.register_parameter('vertex_pos', self.mesh.v_pos)
 
      
 
