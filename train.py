@@ -101,6 +101,28 @@ def xatlas_uvmap(glctx, geometry, mat, FLAGS):
 
     return new_mesh
 
+@torch.no_grad()
+def xatlas_uvmap1(glctx, geometry, mat, FLAGS):
+    eval_mesh = geometry.getMesh(mat)
+    new_mesh = mesh.Mesh( base=eval_mesh)
+    mask, kd, ks, normal = render.render_uv1(glctx, new_mesh, FLAGS.texture_res, eval_mesh.material['kd_ks_normal'], FLAGS.uv_padding_block)
+    
+    if FLAGS.layers > 1:
+        kd = torch.cat((kd, torch.rand_like(kd[...,0:1])), dim=-1)
+
+    kd_min, kd_max = torch.tensor(FLAGS.kd_min, dtype=torch.float32, device='cuda'), torch.tensor(FLAGS.kd_max, dtype=torch.float32, device='cuda')
+    ks_min, ks_max = torch.tensor(FLAGS.ks_min, dtype=torch.float32, device='cuda'), torch.tensor(FLAGS.ks_max, dtype=torch.float32, device='cuda')
+    nrm_min, nrm_max = torch.tensor(FLAGS.nrm_min, dtype=torch.float32, device='cuda'), torch.tensor(FLAGS.nrm_max, dtype=torch.float32, device='cuda')
+
+    new_mesh.material = material.Material({
+        'bsdf'   : mat['bsdf'],
+        'kd'     : texture.Texture2D(kd, min_max=[kd_min, kd_max]),
+        'ks'     : texture.Texture2D(ks, min_max=[ks_min, ks_max]),
+        'normal' : texture.Texture2D(normal, min_max=[nrm_min, nrm_max])
+    })
+
+    return new_mesh
+
 ###############################################################################
 # Utility functions for material
 ###############################################################################
@@ -495,10 +517,10 @@ def optimize_mesh(
         #             (it, img_loss_avg, reg_loss_avg, iter_dur_avg*1000, util.time_to_text(remaining_time),optimizer.param_groups[0]['lr']))
     return geometry, opt_material
 
-def seed_everything(seed):
-    random.seed(seed)
+def seed_everything(seed, local_rank):
+    random.seed(seed + local_rank)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    np.random.seed(seed)
+    np.random.seed(seed + local_rank)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     # torch.backends.cudnn.benchmark = True  
@@ -542,6 +564,7 @@ if __name__ == "__main__":
     parser.add_argument("--if_flip_the_normal", action='store_true', default=False , help="Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.")
     parser.add_argument("--front_threshold", type= int, nargs=1, default= 45 , help="the range of front view would be [-front_threshold, front_threshold")
     parser.add_argument("--if_use_bump", type=bool, default= True , help="whether to use perturbed normals during appearing modeling")
+    parser.add_argument("--uv_padding_block", type= int, default= 4 , help="The block of uv padding.")
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64, 128 and 256 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
@@ -595,7 +618,7 @@ if __name__ == "__main__":
             print(key, FLAGS.__dict__[key])
         print("---------")
 
-    seed_everything(FLAGS.seed)
+    seed_everything(FLAGS.seed, FLAGS.local_rank)
     
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
@@ -670,7 +693,8 @@ if __name__ == "__main__":
             validate(glctx, geometry, mat, lgt, dataset_gif, os.path.join(FLAGS.out_dir, "validate"), FLAGS)
 
         # Create textured mesh from result
-        base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
+        if FLAGS.local_rank == 0:
+            base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
 
         # # Free temporaries / cached memory 
         torch.cuda.empty_cache()
@@ -704,7 +728,7 @@ if __name__ == "__main__":
                                       dataset_validate, 
                                       FLAGS, 
                                       optimize_light=FLAGS.learn_light,
-                                      optimize_geometry=not FLAGS.lock_pos, 
+                                      optimize_geometry= False, 
                                       guidance= guidance,
                                       )
         
@@ -717,7 +741,8 @@ if __name__ == "__main__":
             else:
                 relight = None
             validate(glctx, geometry, mat, lgt, dataset_gif, os.path.join(FLAGS.out_dir, "validate"), FLAGS, relight)
-        base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
+        if FLAGS.local_rank == 0:
+            base_mesh = xatlas_uvmap1(glctx, geometry, mat, FLAGS)
         torch.cuda.empty_cache()
         mat['kd_ks_normal'].cleanup()
         del mat['kd_ks_normal']
