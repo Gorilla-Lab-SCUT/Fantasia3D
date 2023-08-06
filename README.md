@@ -12,6 +12,8 @@
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.06)
+  - Add a tip to improve the realism of appearance.
 - (2023.08.05)
   - Fix the bug about the same seed between different gpus, which may not accelerate convergence. 
   - Add a part for directly performing UV padding in the code, so there is no need for additional operations in the blender.
@@ -202,6 +204,8 @@ python3  train.py --config configs/Gundam_appearance.json
   ```
 
 - ***(appearance modeling) Use different HDR environment maps.*** Learning the PBR materials is an ill-posed problem. If materials and lighting are learned together, it will increase the difficulty of learning. So We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
+
+- ***(appearance modeling) Use some additional prompts.*** Using some additional prompts, such as "a DSLR photo of {your text}, black background" can improve the realism of appearance.
 
 # Coordinate System
 
