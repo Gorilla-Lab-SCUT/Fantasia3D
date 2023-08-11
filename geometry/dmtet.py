@@ -245,8 +245,6 @@ class DMTetGeometry(torch.nn.Module):
             srgb =  buffers['shaded'][...,0:3] #* buffers['shaded'][..., 3:4] # normal * mask
             # 
             pred_rgb_512 = srgb.permute(0, 3, 1, 2).contiguous() # [B, 3, 512, 512]
-            # pred_rgb_256= F.interpolate(pred_rgb_512, (256, 256), mode='bilinear', align_corners=False)
-            # pred_rgb_512 = F.interpolate(pred_rgb_256, (512, 512), mode='bilinear', align_corners=False)
             latents = guidance.encode_imgs(pred_rgb_512)
    
         with torch.no_grad():
@@ -261,15 +259,20 @@ class DMTetGeometry(torch.nn.Module):
         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
         noise_pred =noise_pred_uncond + guidance.guidance_weight * (noise_pred_text - noise_pred_uncond) # [B, 4, 64, 64]
         
-        w = (1 - guidance.alphas[t]) # [B]
+        # w = (1 - guidance.alphas[t]) # [B]
         # w = self.guidance.alphas[t]
         # w = 1 / (1 - guidance.alphas[t])
         # w = 1 / torch.sqrt(1 - guidance.alphas[t])
-        # w = guidance.alphas[t] ** 0.5 * (1 - guidance.alphas[t])
+        if iteration <= self.FLAGS.coarse_iter:
+            w = (1 - guidance.alphas[t]) # [B]
+        else:
+            w = guidance.alphas[t] ** 0.5 * (1 - guidance.alphas[t])
+            # w = 1 / (1 - guidance.alphas[t])
         w = w[:, None, None, None] # [B, 1, 1, 1]
-        grad =  w * (noise_pred - noise ) #*w1 
+        grad =  w * (noise_pred - noise ) #*w1 s
         grad = torch.nan_to_num(grad)
-        
+        # target = (latents - grad).detach(s)
+        # sds_loss = 0.5 * F.mse_loss(latents, target, reduction="sum") / self.FLAGS.batch  # SpecifyGradient is not straghtforward, use a reparameterization trick instead
         sds_loss = SpecifyGradient.apply(latents, grad)     
         img_loss = torch.tensor([0], dtype=torch.float32, device="cuda")
         reg_loss = torch.tensor([0], dtype=torch.float32, device="cuda")
