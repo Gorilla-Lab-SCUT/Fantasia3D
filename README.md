@@ -10,8 +10,12 @@
   <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
+https://user-images.githubusercontent.com/128572637/acd52959-3fcf-4825-81b1-3b9efa2fb6cc
+
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.11)
+  - Fix the bug about the unsmooth geometry in some cases.
 - (2023.08.06)
   - Add a tip to improve the realism of appearance.
 - (2023.08.05)
@@ -122,9 +126,9 @@ python3 -m torch.distributed.launch --nproc_per_node=8 train.py --config configs
 python3 -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/Gundam_appearance.json
 ...
 # Single GPU training
-# Geometry modeling
-python3  train.py --config configs/Gundam_geometry.json
-# Appearance modeling
+# Geometry modeling (untested)
+python3  train.py --config configs/Gundam_geometry.json 
+# Appearance modeling (untested)
 python3  train.py --config configs/Gundam_appearance.json
 ```
 
