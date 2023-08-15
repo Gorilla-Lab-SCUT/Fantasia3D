@@ -76,6 +76,14 @@ class DatasetMesh(torch.utils.data.Dataset):
         fovy =  np.random.uniform(self.fovy_range_min, self.fovy_range_max)
         proj_mtx = util.perspective(fovy, self.FLAGS.train_res[1] / self.FLAGS.train_res[0], self.FLAGS.cam_near_far[0], self.FLAGS.cam_near_far[1])
         if self.FLAGS.gpu_number == 8: # All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            # if self.FLAGS.local_rank in [0,4,5,6]:
+            #     rotate_y = np.random.uniform(np.deg2rad(-45), np.deg2rad(45))
+            # elif self.FLAGS.local_rank in [1]:
+            #     rotate_y = np.random.uniform(np.deg2rad(45), np.deg2rad(135))
+            # elif self.FLAGS.local_rank in [2]:#back
+            #     rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
+            # elif self.FLAGS.local_rank in [3,7]:
+            #     rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
             if self.FLAGS.local_rank in [0,4]:
                 rotate_y = np.random.uniform(np.deg2rad(-45), np.deg2rad(45))
             elif self.FLAGS.local_rank in [1,5]:
@@ -83,6 +91,39 @@ class DatasetMesh(torch.utils.data.Dataset):
             elif self.FLAGS.local_rank in [2,6]:#back
                 rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
             elif self.FLAGS.local_rank in [3,7]:
+                rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
+            if rotate_y > np.pi:
+                rotate_y = rotate_y - np.pi*2
+        elif self.FLAGS.gpu_number == 7: #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            if self.FLAGS.local_rank in [0,4]:
+                rotate_y = np.random.uniform(np.deg2rad(-45), np.deg2rad(45))
+            elif self.FLAGS.local_rank in [1,5]:
+                rotate_y = np.random.uniform(np.deg2rad(45), np.deg2rad(135))
+            elif self.FLAGS.local_rank in [2,6]:#back
+                rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
+            elif self.FLAGS.local_rank in [3]:
+                rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
+            if rotate_y > np.pi:
+                rotate_y = rotate_y - np.pi*2
+        elif self.FLAGS.gpu_number == 6: #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            if self.FLAGS.local_rank in [0,4]:
+                rotate_y = np.random.uniform(np.deg2rad(-45), np.deg2rad(45))
+            elif self.FLAGS.local_rank in [1,5]:
+                rotate_y = np.random.uniform(np.deg2rad(45), np.deg2rad(135))
+            elif self.FLAGS.local_rank in [2]:#back
+                rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
+            elif self.FLAGS.local_rank in [3]:
+                rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
+            if rotate_y > np.pi:
+                rotate_y = rotate_y - np.pi*2
+        elif self.FLAGS.gpu_number == 5: #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            if self.FLAGS.local_rank in [0,4]:
+                rotate_y = np.random.uniform(np.deg2rad(-45), np.deg2rad(45))
+            elif self.FLAGS.local_rank in [1]:
+                rotate_y = np.random.uniform(np.deg2rad(45), np.deg2rad(135))
+            elif self.FLAGS.local_rank in [2]:#back
+                rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
+            elif self.FLAGS.local_rank in [3]:
                 rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
             if rotate_y > np.pi:
                 rotate_y = rotate_y - np.pi*2
@@ -95,6 +136,20 @@ class DatasetMesh(torch.utils.data.Dataset):
                 rotate_y = np.random.uniform( np.deg2rad(135), np.deg2rad(225))
             elif self.FLAGS.local_rank in [3]:
                 rotate_y = np.random.uniform(np.deg2rad(-135), np.deg2rad(-45)) 
+            if rotate_y > np.pi:
+                rotate_y = rotate_y - np.pi*2
+        elif self.FLAGS.gpu_number == 3: #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            if self.FLAGS.local_rank in [0]:
+                rotate_y = np.random.uniform(np.deg2rad(-60), np.deg2rad(60))
+            elif self.FLAGS.local_rank in [1]:
+                rotate_y = np.random.uniform(np.deg2rad(60), np.deg2rad(180))
+            elif self.FLAGS.local_rank in [2]:
+                rotate_y = np.random.uniform( np.deg2rad(-60), np.deg2rad(-180))
+        elif self.FLAGS.gpu_number == 2: #All the results in the paper were generated using 8 3090 GPUs. We cannot guarantee that fewer than 8 GPUs can achieve the same effect.
+            if self.FLAGS.local_rank in [0]:
+                rotate_y = np.random.uniform(np.deg2rad(-90), np.deg2rad(90))
+            elif self.FLAGS.local_rank in [1]:
+                rotate_y = np.random.uniform(np.deg2rad(90), np.deg2rad(270))
             if rotate_y > np.pi:
                 rotate_y = rotate_y - np.pi*2
         else:
