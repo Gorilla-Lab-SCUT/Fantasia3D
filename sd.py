@@ -29,7 +29,8 @@ class StableDiffusion(nn.Module):
                  guidance_weight = 100, 
                  sds_weight_strategy = 0,
                  early_time_step_range = [0.02, 0.5],
-                 late_time_step_range = [0.02, 0.5]):
+                 late_time_step_range = [0.02, 0.5],
+                 sd_version = '2.1'):
         super().__init__()
 
         self.device = device
@@ -37,12 +38,18 @@ class StableDiffusion(nn.Module):
         self.text= text
         self.add_directional_text = add_directional_text
         self.batch = batch 
+        self.sd_version = sd_version
         print(f'[INFO] loading stable diffusion...')
-        model_key = "stabilityai/stable-diffusion-2-1-base"
+        if self.sd_version == '2.1':
+            model_key = "stabilityai/stable-diffusion-2-1-base"
+        elif self.sd_version == '2.0':
+            model_key = "stabilityai/stable-diffusion-2-base"
+        elif self.sd_version == '1.5':
+            model_key = "runwayml/stable-diffusion-v1-5"
         self.vae = AutoencoderKL.from_pretrained(model_key, subfolder="vae",torch_dtype=torch.float16).to(self.device)
-        self.tokenizer = CLIPTokenizer.from_pretrained(model_key, subfolder="tokenizer",torch_dtype=torch.float16)
-        self.text_encoder = CLIPTextModel.from_pretrained(model_key, subfolder="text_encoder",torch_dtype=torch.float16).to(self.device)
-        self.unet = UNet2DConditionModel.from_pretrained(model_key, subfolder="unet",torch_dtype=torch.float16).to(self.device)
+        self.tokenizer = CLIPTokenizer.from_pretrained(model_key, subfolder="tokenizer",torch_dtype=torch.float16 )
+        self.text_encoder = CLIPTextModel.from_pretrained(model_key, subfolder="text_encoder",torch_dtype=torch.float16 ).to(self.device)
+        self.unet = UNet2DConditionModel.from_pretrained(model_key, subfolder="unet",torch_dtype=torch.float16 ).to(self.device)
         if is_xformers_available():
             self.unet.enable_xformers_memory_efficient_attention()
         self.negative_text = ''
@@ -103,11 +110,18 @@ class StableDiffusion(nn.Module):
             imgs = 2 * imgs - 1
 
         posterior = self.vae.encode(imgs).latent_dist
-        latents = posterior.sample() * 0.18215
+        latents = posterior.sample() * self.vae.config.scaling_factor
 
         return latents
 
+    def decode_latents(self, latents):
 
+        latents = 1 / self.vae.config.scaling_factor * latents
+
+        imgs = self.vae.decode(latents).sample
+        imgs = (imgs / 2 + 0.5).clamp(0, 1)
+
+        return imgs
 
 
 

@@ -14,6 +14,8 @@ https://user-images.githubusercontent.com/128572637/acd52959-3fcf-4825-81b1-3b9e
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.20)
+  - Note: different versions of stable diffusion seem to have different performance. In terms of generating avatars, version 1.5 performs better than version 2.1.
 - (2023.08.11)
   - Fix the bug about the unsmooth geometry in some cases.
 - (2023.08.06)
