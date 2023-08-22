@@ -12,6 +12,8 @@
 
 https://user-images.githubusercontent.com/128572637/acd52959-3fcf-4825-81b1-3b9efa2fb6cc
 
+https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3ded2f065
+
 # Update log
 **Please pull the latest code to improve performance!!**
 - (2023.08.20)
