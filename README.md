@@ -10,12 +10,14 @@
   <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
-https://user-images.githubusercontent.com/128572637/acd52959-3fcf-4825-81b1-3b9efa2fb6cc
+https://user-images.githubusercontent.com/128572637/99ab7e61-eb81-4b75-8138-3321b6633d78
 
 https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3ded2f065
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.22)
+  - Note: For situations where the requirement for the number of mesh faces is not high, I recommend using a DMTet resolution of 128 to achieve a balance between quality and generation speed. When using a resolution of 128 or less, the generation speed will be significantly faster.
 - (2023.08.20)
   - Note: different versions of stable diffusion seem to have different performance. In terms of generating avatars, version 1.5 performs better than version 2.1.
 - (2023.08.11)
@@ -170,7 +172,7 @@ python3  train.py --config configs/Gundam_appearance.json
 
 - ***(geometry modeling) Increae the number of iterations in the early phase.***  The early phase is very crucial to create a coarse and correct shape. The late phase just focuses on attaining finer geometry details so there will be no significant changes in the overall shape. Increase the number of the parameter "coarse_iter" if you find that the contour of the geometric shape does not match the text description.
 
-- ***(geometry modeling) Use larger resolution of the tetrahedron.*** A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50. In my experience, a single GPU is suitable for using a resolution of 128 instead of 256. If you want to obtain a high-detail model at 256 resolution, multi-GPU training is necessary. In addition, the effect of multiple GPUs is much better than a single GPU for objects with obvious directionality, such as human head statues. BTW, using the gradient accumulation technique for a single GPU may achieve the effect of multiple GPUs, but I haven't tested it yet.
+- ***(geometry modeling) Use larger resolution of the tetrahedron.*** For situations where the requirement for the number of mesh faces is not high, I recommend using a DMTet resolution of 128 to achieve a balance between quality and generation speed. When using a resolution of 128 or less, the generation speed will be significantly faster. A larger resolution can bring more details in the local geometry. You can easily change the resolution by modifying the value of the parameter "dmtet_grid" to 128 or 256. Note that if you find that the mesh quickly disappears or disperses when using 256 resolution, decrease the guidance weight of SDS loss from default 100 to 50. In my experience, a single GPU is suitable for using a resolution of 128 instead of 256. If you want to obtain a high-detail model at 256 resolution, multi-GPU training is necessary. In addition, the effect of multiple GPUs is much better than a single GPU for objects with obvious directionality, such as human head statues. BTW, using the gradient accumulation technique for a single GPU may achieve the effect of multiple GPUs, but I haven't tested it yet.
 
 - ***(geometry modeling) Use different range of time step in the early phase.*** We usually use the time steps range [0.02,0.5] in the early phase. But in some cases where you want to "grow" more parts based on the initialized shape, it may fail to generate all parts. For instance, the text "An astronaut riding a horse", may fail to "grow" the part of the astronaut using the range [0.02, 0.5] since the fact that low time steps have little contribution to significant deformation. To address this problem, we recommend you use a high range, such as [0.4, 0.6]. You can try different ranges and publish your findings in the issue.
 
