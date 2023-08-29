@@ -49,7 +49,7 @@ import os.path as osp
 # Mix background into a dataset image
 ###############################################################################
 @torch.no_grad()
-def prepare_batch(target, background= 'black'):
+def prepare_batch(target, background= 'black',it = 0,coarse_iter=0):
     target['mv'] = target['mv'].cuda()
     target['mvp'] = target['mvp'].cuda()
     target['campos'] = target['campos'].cuda()
@@ -61,6 +61,9 @@ def prepare_batch(target, background= 'black'):
         target['background']= torch.ones(batch_size, resolution[0], resolution[1], 3, dtype=torch.float32, device='cuda') 
     if background == 'black':
         target['background'] = torch.zeros(batch_size, resolution[0], resolution[1], 3, dtype=torch.float32, device='cuda') 
+        # if it<=coarse_iter:
+        #     target['background'][:,:,:,0:2] -=1
+        #     target['background'][:,:,:,2:3] +=1
     return target
 
 ###############################################################################
@@ -400,7 +403,7 @@ def optimize_mesh(
     for it, target in enumerate(dataloader_train):
 
         # Mix randomized background into dataset image
-        target = prepare_batch(target, FLAGS.train_background)  
+        target = prepare_batch(target, FLAGS.train_background,it, FLAGS.coarse_iter)  
 
         # ==============================================================================================
         #  Display / save outputs. Do it before training so we get initial meshes
@@ -557,6 +560,7 @@ if __name__ == "__main__":
     parser.add_argument("--guidance_weight", type=int, default=100, help="The weight of classifier-free guidance")
     parser.add_argument("--sds_weight_strategy", type=int, nargs=1, default=0, choices=[0, 1, 2], help="The strategy of the sds loss's weight")
     parser.add_argument("--translation_y", type= float, nargs=1, default= 0 , help="translation of the initial shape on the y-axis")
+    parser.add_argument("--translation_z", type= float, nargs=1, default= 0 , help="translation of the initial shape on the z-axis")
     parser.add_argument("--coarse_iter", type= int, nargs=1, default= 1000 , help="The iteration number of the coarse stage.")
     parser.add_argument('--early_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in early phase")
     parser.add_argument('--late_time_step_range', nargs=2, type=float, default=[0.02, 0.5], help="The time step range in late phase")
@@ -621,7 +625,8 @@ if __name__ == "__main__":
     seed_everything(FLAGS.seed, FLAGS.local_rank)
     
     os.makedirs(FLAGS.out_dir, exist_ok=True)
-
+    decode_dir = os.path.join(FLAGS.out_dir, "decode")
+    os.makedirs(decode_dir , exist_ok=True)
     # glctx = dr.RasterizeGLContext()
     glctx = dr.RasterizeCudaContext()
     # ==============================================================================================
@@ -647,7 +652,7 @@ if __name__ == "__main__":
         if FLAGS.sdf_init_shape == 'ellipsoid':
             init_shape = o3d.geometry.TriangleMesh.create_sphere(1)
         elif FLAGS.sdf_init_shape == 'cylinder':
-            init_shape = o3d.geometry.TriangleMesh.create_cylinder(radius=0.75, height=1.2, resolution=20, split=4, create_uv_map=False)
+            init_shape = o3d.geometry.TriangleMesh.create_cylinder(radius=0.75, height=0.8, resolution=20, split=4, create_uv_map=False)
         elif FLAGS.sdf_init_shape == 'custom_mesh':
             if FLAGS.base_mesh:
                 init_shape = get_normalize_mesh(FLAGS.base_mesh)
@@ -662,6 +667,7 @@ if __name__ == "__main__":
         vertices[...,2]=vertices[...,2] * FLAGS.sdf_init_shape_scale[2]
         vertices = vertices @ util.rotate_x_2(np.deg2rad(FLAGS.sdf_init_shape_rotate_x))
         vertices[...,1]=vertices[...,1] + FLAGS.translation_y
+        vertices[...,2]=vertices[...,2] + FLAGS.translation_z
         init_shape.vertices = o3d.cuda.pybind.utility.Vector3dVector(vertices)
         points_surface = np.asarray(init_shape.sample_points_poisson_disk(5000).points)
         init_shape = o3d.t.geometry.TriangleMesh.from_legacy(init_shape)
