@@ -16,6 +16,8 @@ https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.29)
+  - Skip some unnecessary material prediction processes in geometry modeling, which slightly decreases the training time.
 - (2023.08.22)
   - Note: For situations where the requirement for the number of mesh faces is not high, I recommend using a DMTet resolution of 128 to achieve a balance between quality and generation speed. When using a resolution of 128 or less, the generation speed will be significantly faster.
 - (2023.08.20)
@@ -83,7 +85,7 @@ We provide two choices to install the environment.
   ```bash
   docker pull registry.cn-guangzhou.aliyuncs.com/baopin/fantasia3d:1.0
   ```
-  Due to the Internet Network Delay, the package of xformers was not installed in this docker image. Install it by hand after you create a docker container using this docker image. 
+  (optional) Due to the Internet Network Delay, the package of xformers was not installed in this docker image. Install it by hand to accelerate the training during geometry and appearance modeling after you create a docker container using the above docker image. 
 
   ```bash
   pip install git+https://github.com/facebookresearch/xformers.git@main#egg=xformers

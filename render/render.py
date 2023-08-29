@@ -49,23 +49,16 @@ def shade(
     # Texture lookups
     ################################################################################
     perturbed_nrm = None
-    if 'kd_ks_normal' in material:
+    if 'kd_ks_normal' in material and mode == 'appearance_modeling':
         # Combined texture, used for MLPs because lookups are expensive
         all_tex_jitter = material['kd_ks_normal'].sample(gb_pos + torch.normal(mean=0, std=0.01, size=gb_pos.shape, device="cuda"))
         all_tex = material['kd_ks_normal'].sample(gb_pos)
-        # print('2222222222')
         assert all_tex.shape[-1] == 9 or all_tex.shape[-1] == 10, "Combined kd_ks_normal must be 9 or 10 channels"
         kd, ks, perturbed_nrm = all_tex[..., :-6], all_tex[..., -6:-3], all_tex[..., -3:]
         # Compute albedo (kd) gradient, used for material regularizer
-        kd_grad    = torch.sum(torch.abs(all_tex_jitter[..., :-6] - all_tex[..., :-6]), dim=-1, keepdim=True) / 3
-    else:
-        kd_jitter  = material['kd'].sample(gb_texc + torch.normal(mean=0, std=0.005, size=gb_texc.shape, device="cuda"), gb_texc_deriv) #[1,512,512,3]
-        kd = material['kd'].sample(gb_texc, gb_texc_deriv) #[1,512,512,3]
-        ks = material['ks'].sample(gb_texc, gb_texc_deriv)[..., 0:3] # skip alpha [1,512,512,3]  [0,0.25,0]
-        if 'normal' in material: 
-            perturbed_nrm = material['normal'].sample(gb_texc, gb_texc_deriv)
-        kd_grad    = torch.sum(torch.abs(kd_jitter[..., 0:3] - kd[..., 0:3]), dim=-1, keepdim=True) / 3 #[1,512,512,1]
-
+        # kd_grad    = torch.sum(torch.abs(all_tex_jitter[..., :-6] - all_tex[..., :-6]), dim=-1, keepdim=True) / 3
+    elif mode == 'geometry_modeling':
+        kd =  torch.ones_like(gb_pos, dtype=torch.float32, device='cuda') *0.5 
     # Separate kd into alpha and color, default alpha = 1
     alpha = kd[..., 3:4] if kd.shape[-1] == 4 else torch.ones_like(kd[..., 0:1])  #[1,512,512,1]
     kd = kd[..., 0:3]
@@ -82,7 +75,7 @@ def shade(
     #produces a final normal used for shading  [B, 512, 512, 3]
     gb_normal = ru.prepare_shading_normal(gb_pos, view_pos, perturbed_nrm, gb_normal, gb_tangent, gb_geometric_normal, two_sided_shading=True, opengl=True)
     # gb_normal1 = gb_normal 
-    gb_normal1 = gb_normal @ normal_rotate[:,None,...] # We randomly rotate the normals to change the color gamut of nomral at the same angle. We find this help to deform the shape
+    gb_normal1 = gb_normal @ normal_rotate[:,None,...] # I randomly rotate the normals to change the color gamut of nomral at the same angle. I found this help to deform the shape
     
     ################################################################################
     # Evaluate BSDF
@@ -109,7 +102,7 @@ def shade(
     elif bsdf == 'normal':
         shaded_col = gb_normal1
         if if_flip_the_normal:
-            shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. We find this process helps to alleviate the Janus problem.
+            shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. I find this process helps to alleviate the Janus problem.
     elif bsdf == 'tangent':
         shaded_col = (gb_tangent + 1.0)*0.5
     elif bsdf == 'kd':
@@ -121,7 +114,7 @@ def shade(
     
     buffers = {
         'shaded'    : torch.cat((shaded_col, alpha), dim=-1),
-        'kd_grad'   : torch.cat((kd_grad, alpha), dim=-1),
+        # 'kd_grad'   : torch.cat((kd_grad, alpha), dim=-1),
         # 'occlusion' : torch.cat((ks[..., :1], alpha), dim=-1)  #it is similar to a simple ambient occlusion term and does not account for directional visibility
     }
     return buffers
