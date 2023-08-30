@@ -46,6 +46,10 @@ Answer: Previous methods (e.g., DreamFusion and Magic3D) couple the geometry and
 
 Answer: Yes, it can. Fantasia3D can receive any mesh given by the user and fine-tune it using our method of user-guided generation. It can also naturally interface with the 3D generative method like shape-e and point-e. In a word, Fantasia3D can generate highly detailed and high-fidelity 3D content based on either the low-quality mesh given by the users or the ellipsoid.
 
+***Q4***: *What do you think is the reason why it could not replicate the same result with 4 or fewer GPUs when using the official configs?*
+
+Answer: The official configs are usually used under 8 GPUs. The sampling algorithm proposed in the supplementary materials contributes to global consistency in appearance and geometry modeling, and it depends on a large batch size. When using fewer GPUs, the overall batch size is significantly smaller, which can result in the inability to replicate the same results in the official configs. One possible solution is to manually increase the batch size in the configs.
+
 # What do you want?
 
 Considering that parameter tuning may require some experience, what kind of object do you want me to generate? Please speak freely in the issue area. I will take some time to implement some requirements and update the corresponding configuration files for your convenience in reproducing.
