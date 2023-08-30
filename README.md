@@ -16,6 +16,8 @@ https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.08.30)
+  - Add a FAQ.
 - (2023.08.29)
   - Skip some unnecessary material prediction processes in geometry modeling, which slightly decreases the training time.
 - (2023.08.22)
