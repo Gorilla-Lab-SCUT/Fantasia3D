@@ -51,7 +51,7 @@ def shade(
     perturbed_nrm = None
     if 'kd_ks_normal' in material and mode == 'appearance_modeling':
         # Combined texture, used for MLPs because lookups are expensive
-        all_tex_jitter = material['kd_ks_normal'].sample(gb_pos + torch.normal(mean=0, std=0.01, size=gb_pos.shape, device="cuda"))
+        # all_tex_jitter = material['kd_ks_normal'].sample(gb_pos + torch.normal(mean=0, std=0.01, size=gb_pos.shape, device="cuda"))
         all_tex = material['kd_ks_normal'].sample(gb_pos)
         assert all_tex.shape[-1] == 9 or all_tex.shape[-1] == 10, "Combined kd_ks_normal must be 9 or 10 channels"
         kd, ks, perturbed_nrm = all_tex[..., :-6], all_tex[..., -6:-3], all_tex[..., -3:]
@@ -75,7 +75,7 @@ def shade(
     #produces a final normal used for shading  [B, 512, 512, 3]
     gb_normal = ru.prepare_shading_normal(gb_pos, view_pos, perturbed_nrm, gb_normal, gb_tangent, gb_geometric_normal, two_sided_shading=True, opengl=True)
     # gb_normal1 = gb_normal 
-    gb_normal1 = gb_normal @ normal_rotate[:,None,...] # I randomly rotate the normals to change the color gamut of nomral at the same angle. I found this help to deform the shape
+    gb_normal1 = gb_normal @ normal_rotate[:,None,...] # Randomly rotate the normals to change the color gamut of nomral at the same angle. I found this help to deform the shape
     
     ################################################################################
     # Evaluate BSDF
@@ -102,7 +102,7 @@ def shade(
     elif bsdf == 'normal':
         shaded_col = gb_normal1
         if if_flip_the_normal:
-            shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. I find this process helps to alleviate the Janus problem.
+            shaded_col[...,0][shaded_col[...,0]>0]= shaded_col[...,0][shaded_col[...,0]>0]*(-1) # Flip the x-axis positive half-axis of Normal. I found this process helps to alleviate the Janus problem.
     elif bsdf == 'tangent':
         shaded_col = (gb_tangent + 1.0)*0.5
     elif bsdf == 'kd':
