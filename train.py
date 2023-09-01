@@ -552,7 +552,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42, help="A seed for reproducible training.")
     parser.add_argument("--add_directional_text", action='store_true', default=False)
     parser.add_argument('--mode', default='geometry_modeling', choices=['geometry_modeling', 'appearance_modeling'])
-    parser.add_argument('--text', default=None, help="text prompt")
+    parser.add_argument('--text', type=str, default="", help="text prompt")
     parser.add_argument('--sdf_init_shape', default='ellipsoid', choices=['ellipsoid', 'cylinder', 'custom_mesh'])
     parser.add_argument('--camera_random_jitter', type= float, default=0.4, help="A large value is advantageous for the extension of objects such as ears or sharp corners to grow.")
     parser.add_argument('--fovy_range', nargs=2, type=float, default=[25.71, 45.00])
@@ -569,7 +569,7 @@ if __name__ == "__main__":
     parser.add_argument("--front_threshold", type= int, nargs=1, default= 45 , help="the range of front view would be [-front_threshold, front_threshold")
     parser.add_argument("--if_use_bump", type=bool, default= True , help="whether to use perturbed normals during appearing modeling")
     parser.add_argument("--uv_padding_block", type= int, default= 4 , help="The block of uv padding.")
-    parser.add_argument("--negative_text", default=None, help="adding negative text can improve the visual quality in appearance modeling")
+    parser.add_argument("--negative_text", type=str, default="", help="adding negative text can improve the visual quality in appearance modeling")
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64, 128 and 256 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
