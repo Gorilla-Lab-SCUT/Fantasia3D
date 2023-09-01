@@ -17,7 +17,7 @@ https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3
 # Update log
 **Please pull the latest code to improve performance!!**
 - (2023.09.01)
-  - Note: adding nagative prompts can improve the visual quality in appearance modeling. See the latest [Gallery](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19) for more details.
+  - Note: adding negative prompts can improve the visual quality in appearance modeling. See the latest [Gallery](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19) for more details.
 - (2023.08.30)
   - Add two FAQs.
 - (2023.08.29)
@@ -90,7 +90,7 @@ For the file of appearance modeling:
 - Tested GPUs: RTX3090, RTX4090, A100, V100
 
 We provide two choices to install the environment.
-- (Option 1) Use the file  requirements.txt to install all packages one by one. It may fail since the complexity of some packages.
+- (Option 1) Use the file requirements.txt to install all packages one by one. It may fail since the complexity of some packages.
 
   ```bash
   pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
@@ -235,7 +235,7 @@ python3  train.py --config configs/Gundam_appearance.json
 
 - ***(appearance modeling) Use some additional prompts.*** Using some additional prompts, such as "a DSLR photo of {your text}, black background" can improve the realism of appearance in most cases (but not all).
 
-- ***(appearance modeling) Add nagative prompt.*** Setting appropriate negative prompts can improve the visual quality in appearance modeling. 
+- ***(appearance modeling) Add negative prompt.*** Setting appropriate negative prompts can improve the visual quality in appearance modeling. 
 
 # Coordinate System
 
