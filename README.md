@@ -200,8 +200,6 @@ python3  train.py --config configs/Gundam_appearance.json
 
 - ***(appearance modeling) Use different strategy.*** We offer three strategy (0 or 1 or 2) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1 or 2, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 or 2 can generate more natural color than strategy 0.
 
-- ***(appearance modeling) Add nagative prompt.*** Setting appropriate negative prompts can improve the visual quality in appearance modeling. 
-    
   strategy 0 can be used as follow.
   ```bash
   "sds_weight_strategy": 0,
@@ -236,6 +234,8 @@ python3  train.py --config configs/Gundam_appearance.json
 - ***(appearance modeling) Use different HDR environment maps.*** Learning the PBR materials is an ill-posed problem. If materials and lighting are learned together, it will increase the difficulty of learning. So We use the fixed HDR light to optimize the appearance. We noticed that HDR maps with uniform brightness distribution, such as cloudy days, are conducive to the uniformity of appearance colors. Some uneven brightness distribution may produce more realistic results (untested).
 
 - ***(appearance modeling) Use some additional prompts.*** Using some additional prompts, such as "a DSLR photo of {your text}, black background" can improve the realism of appearance in most cases (but not all).
+
+- ***(appearance modeling) Add nagative prompt.*** Setting appropriate negative prompts can improve the visual quality in appearance modeling. 
 
 # Coordinate System
 
