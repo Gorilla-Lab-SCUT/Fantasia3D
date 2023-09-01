@@ -30,7 +30,8 @@ class StableDiffusion(nn.Module):
                  sds_weight_strategy = 0,
                  early_time_step_range = [0.02, 0.5],
                  late_time_step_range = [0.02, 0.5],
-                 sd_version = '2.1'):
+                 sd_version = '2.1',
+                 negative_text = ''):
         super().__init__()
 
         self.device = device
@@ -52,7 +53,7 @@ class StableDiffusion(nn.Module):
         self.unet = UNet2DConditionModel.from_pretrained(model_key, subfolder="unet",torch_dtype=torch.float16 ).to(self.device)
         if is_xformers_available():
             self.unet.enable_xformers_memory_efficient_attention()
-        self.negative_text = ''
+        self.negative_text = negative_text
         if add_directional_text:
             self.text_z = []
             self.uncond_z = []

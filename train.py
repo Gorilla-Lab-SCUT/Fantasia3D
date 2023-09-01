@@ -569,6 +569,7 @@ if __name__ == "__main__":
     parser.add_argument("--front_threshold", type= int, nargs=1, default= 45 , help="the range of front view would be [-front_threshold, front_threshold")
     parser.add_argument("--if_use_bump", type=bool, default= True , help="whether to use perturbed normals during appearing modeling")
     parser.add_argument("--uv_padding_block", type= int, default= 4 , help="The block of uv padding.")
+    parser.add_argument("--negative_text", default=None, help="adding negative text can improve the visual quality in appearance modeling")
     FLAGS = parser.parse_args()
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64, 128 and 256 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
@@ -683,7 +684,8 @@ if __name__ == "__main__":
                                guidance_weight = FLAGS.guidance_weight,
                                sds_weight_strategy = FLAGS.sds_weight_strategy,
                                early_time_step_range = FLAGS.early_time_step_range,
-                               late_time_step_range= FLAGS.late_time_step_range)
+                               late_time_step_range= FLAGS.late_time_step_range,
+                               negative_text = FLAGS.negative_text)
     guidance.eval()
     for p in guidance.parameters():
         p.requires_grad_(False)

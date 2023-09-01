@@ -16,6 +16,8 @@ https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3
 
 # Update log
 **Please pull the latest code to improve performance!!**
+- (2023.09.01)
+  - Note: adding nagative prompts can improve the visual quality in appearance modeling. See the latest [Gallery](https://github.com/Gorilla-Lab-SCUT/Fantasia3D/issues/19) for more details.
 - (2023.08.30)
   - Add two FAQs.
 - (2023.08.29)
@@ -197,6 +199,8 @@ python3  train.py --config configs/Gundam_appearance.json
 - ***(geometry modeling) Fine-tune the input mesh.*** Under the task of user-guided generation, if you are satisfied with the silhouette of the input mesh and just want to increase the details of the geometry, set the parameter "coarse_iter" to 400. This setting would directly enter the late phase of geometry modeling which reinforces the local geometric details of the input shape.
 
 - ***(appearance modeling) Use different strategy.*** We offer three strategy (0 or 1 or 2) to optimize the appearance by setting the parameter "sds_weight_strategy". For strategy 0, there will be stronger light and shadow changes, representing a more realistic final appearance. For strategy 1 or 2, the final appearance will be smoother and more comfortable. If the target appearance is too simple, such as "a highly detailed stone bust of Theodoros Kolokotronis", "A standing elephant", and "Michelangelo style statue of dog reading news on a cellphone", using strategy 0 may lead to an oversaturated appearance and strange color. In this case, strategy 1 or 2 can generate more natural color than strategy 0.
+
+- ***(appearance modeling) Add nagative prompt.*** Setting appropriate negative prompts can improve the visual quality in appearance modeling. 
     
   strategy 0 can be used as follow.
   ```bash
