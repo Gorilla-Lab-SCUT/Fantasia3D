@@ -10,7 +10,7 @@
   <img width="40%" src="assets/head_figure.jpg"/>
 </p>
 
-https://user-images.githubusercontent.com/128572637/252febee-37fa-4202-97ed-33a4b1c5882b
+https://user-images.githubusercontent.com/128572637/19c3a9d5-90b4-42b6-a355-5691af1aed40
 
 https://user-images.githubusercontent.com/128572637/99ab7e61-eb81-4b75-8138-3321b6633d78
 
