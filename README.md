@@ -56,13 +56,17 @@ Answer: Yes, it can. Fantasia3D can receive any mesh given by the user and fine-
 
 Answer: The official configs are usually used under 8 GPUs. The sampling algorithm proposed in the supplementary materials contributes to global consistency in appearance and geometry modeling, and it depends on a large batch size. When using fewer GPUs, the overall batch size is significantly smaller, which can result in the inability to replicate the same results in the official configs. One possible solution is to manually increase the batch size in the configs.
 
-***Q5***: How do strategy 0, 1 and 2 in appearance modeling come up?
+***Q5***: *How do strategy 0, 1 and 2 in appearance modeling come up?*
 
 Answer: The strategy weight is a hyperparameter. The parameter, i.g. $\omega(t) =\sigma ^{2}$, used in DreamFusion is an equation that increases as the time step t increases. This may apply to volume rendering, but it is not as suitable for surface rendering. In practice, I found that using the weight of the original version will make the rendered image over-saturated and lack detail and realism. This may be caused by the excessive weight of large t. Therefore, I want to use the weight that gradually decreases with the increase of t, so I get the strategy 0. As for the proposal of strategy 1, I have observed that in some cases, using strategy 0 can produce a more realistic appearance, but often strange colors appear. Therefore, I would like to switch to a more suitable weight. I then realized that the score function is essentially a directional gradient pointing towards the target distribution, and it can transform with the estimated noise, so I came up with Strategy 1, i.g. 
 ```math
  s(z_{t};t) =-\frac{1}{\sigma _{t}}\varepsilon(z_{t};t),
 ```
 where $s$ is the score function. In practice, I observed that it can effectively alleviate the problem of strange colors when used in conjunctions with the time step range of [0.02, 0.98]. However, in some cases, using strategy 1 can lead to unrealistic results because the weight of small t is too large, resulting in a small step towards the target distribution and being in an out-of-distribution (OOD) state all the time. Hence, Strategy 2 was proposed to combine the advantages of Strategy 0 and Strategy 1.
+
+***Q6***: *How can I make the generated results more diverse?*
+
+Answer: Unlike Nerf-based volume rendering, directly using surface rendering to generate 3D assets can achieve diversity. You only need to change the parameters in the configuration file to achieve that. For example, different "sdf_init_shape_scale", "translation_y", "camera_random_jitter", "fovy_range", "negative_text" etc can bring you different results.
 
 # What do you want?
 
