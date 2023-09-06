@@ -69,12 +69,7 @@ class Decoder(torch.nn.Module):
         point_rand = (np.random.rand(3000,3).astype(np.float32)-0.5)* self.mesh_scale
         query_point = np.concatenate((points_surface, points_surface_disturbed, point_rand))
         signed_distance = scene.compute_signed_distance(query_point)
-        # if np.random.rand(1) > 0.9:
         ref_value = torch.from_numpy(signed_distance.numpy()).float().cuda()
-        # else:
-            # ref_value = torch.normal(mean=0, std=0.1, size=signed_distance.numpy().shape, device="cuda",dtype=torch.float32)
-        # ref_value = ref_value[:,None].repeat(1,4)
-        # ref_value[:, 1:4] = 0
         query_point = torch.from_numpy(query_point).float().cuda()
         output = self(query_point)
         
