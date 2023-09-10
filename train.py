@@ -625,6 +625,7 @@ if __name__ == "__main__":
 
     seed_everything(FLAGS.seed, FLAGS.local_rank)
     
+    os.makedirs(FLAGS.out_dir, exist_ok=True)
     # glctx = dr.RasterizeGLContext()
     glctx = dr.RasterizeCudaContext()
     # ==============================================================================================
