@@ -20,7 +20,7 @@ https://user-images.githubusercontent.com/128572637/405fe77e-25c0-410f-b463-e1e3
 **Please pull the latest code to improve performance!!**
 - (2023.10.17)
   - Add a FAQ about the ability of image to 3D, i.e. Q8.
-  - Add a FAQ about the performance of the official code and threestudio reproduction version, i.e. Q9.
+  - Add a FAQ about the performance of the official code and the reproduced version of threestudio, i.e. Q9.
 - (2023.10.13)
   - Add a FAQ about the problem of over-saturation and over-smoothing appearance, i.e. Q7.
 - (2023.09.01)
