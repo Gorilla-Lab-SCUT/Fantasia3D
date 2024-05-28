@@ -319,11 +319,12 @@ https://user-images.githubusercontent.com/128572637/2b20a978-df20-4150-b272-5dac
 - [threestudio](https://github.com/threestudio-project/threestudio)
 ## BibTex
 ```
-@InProceedings{fantasia,
-        author    = {Chen, Rui and Chen, Yongwei and Jiao, Ningxin and Jia, Kui},
-        title     = {Fantasia3D: Disentangling Geometry and Appearance for High-quality Text-to-3D Content Creation},
-        booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-        month     = {October},
-        year      = {2023}
+@InProceedings{chen2023fantasia3d,
+        author={Chen, Rui and Chen, Yongwei and Jiao, Ningxin and Jia, Kui},
+        title={Fantasia3D: Disentangling Geometry and Appearance for High-quality Text-to-3D Content Creation},
+        booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+        doi={10.1109/ICCV51070.2023.02033},
+        pages={22189--22199},
+        year={2023}
       }
 ```
