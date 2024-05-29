@@ -47,6 +47,10 @@ class StableDiffusion(nn.Module):
             model_key = "stabilityai/stable-diffusion-2-base"
         elif self.sd_version == '1.5':
             model_key = "runwayml/stable-diffusion-v1-5"
+        if self.mode == 'geometry_modeling':
+            negative_text = "low quality"
+        if self.mode == 'appearance_modeling':
+            negative_text = "shadow, oversaturated, low quality, unrealistic" 
         self.vae = AutoencoderKL.from_pretrained(model_key, subfolder="vae",torch_dtype=torch.float16).to(self.device)
         self.tokenizer = CLIPTokenizer.from_pretrained(model_key, subfolder="tokenizer",torch_dtype=torch.float16 )
         self.text_encoder = CLIPTextModel.from_pretrained(model_key, subfolder="text_encoder",torch_dtype=torch.float16 ).to(self.device)
